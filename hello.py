@@ -1,14 +1,24 @@
 #-*- coding:utf-8 -*- 
 from flask import Flask
+from flask import make_response 
+from flask import redirect 
+from flask import abort 
 app = Flask(__name__)
 
 #路由以及视图函数
 # 静态URL 
 @app.route('/')
 def index():
-    return '<h1>Hello World!</h1>'
+	response = make_response('<h1>This document carries a cookie!</h1>')
+	response.set_cookie('answer','42')
+	return response 
 
+# 重定向的特殊响应类型	
+@app.route('/redirect')
+def red():
+	return redirect('http://www.baidu.com/')	
 
+# 	
 # 动态URL 
 # 路由中的动态部分默认使用字符串，不过也可使用类型定义。
 #/user/<int:id> Flask在路由支持int,float,path 类型
