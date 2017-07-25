@@ -47,9 +47,11 @@ class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[Required()])
     submit = SubmitField('Submit')
 
-
+# 集成Python shell 
+# 注册程序，数据库实例,模型,防止在shell中重复导入	
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
+# 为shell命令注册一个make_context回调函数	
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
 
