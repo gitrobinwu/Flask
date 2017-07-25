@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 import os
 from flask import Flask, render_template, session, redirect, url_for
 from flask_script import Manager
@@ -5,7 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import Required
+from wtforms.validators import Required,DataRequired 
 from flask_sqlalchemy import SQLAlchemy
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -44,7 +45,7 @@ class User(db.Model):
 
 
 class NameForm(FlaskForm):
-    name = StringField('What is your name?', validators=[Required()])
+    name = StringField('What is your name?', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -57,23 +58,24 @@ def page_not_found(e):
 def internal_server_error(e):
     return render_template('500.html'), 500
 
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/',methods=['GET','POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
-        return redirect(url_for('index'))
-    return render_template('index.html', form=form, name=session.get('name'),
-                           known=session.get('known', False))
-
+	form = NameForm()
+	if form.validate_on_submit():
+		# 提交表单后，查询数据库
+		user = User.query.filter_by(username=form.name.data).first() 
+		if user is None:
+			user = User(username=form.name.data)
+			db.session.add(user)
+			# 标识新用户
+			session['known'] = False 
+		else:
+			# 标识已知用户　
+			session['known'] = True 
+		session['name'] = form.name.data 
+		return redirect(url_for('index'))
+	return render_template('index.html',form=form,name=session.get('name'),
+						   known=session.get('known',False))
 
 if __name__ == '__main__':
     manager.run()
