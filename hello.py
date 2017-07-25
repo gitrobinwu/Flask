@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 import os
 from threading import Thread
 from flask import Flask, render_template, session, redirect, url_for
@@ -19,14 +20,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
+
+app.config['MAIL_SERVER'] = 'mx.besttone.com.cn'
+app.config['MAIL_PORT'] = 25 
+app.config['MAIL_USE_TLS'] = False 
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
-app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <flasky@example.com>'
-app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_MAIL_SENDER'] = 'wuyongwei@besttone.com.cn'
+#app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_ADMIN'] = "wuyongwei@besttone.com.cn"
 
 manager = Manager(app)
 bootstrap = Bootstrap(app)
@@ -55,17 +58,21 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
+# 很多Flask扩展都假设已经存在激活的程序上下文和请求上下文
+# Flask-Mail中的send()函数使用current_app,因此必须激活程序上下文
+# 在不同线程中执行mail.send()函数时，程序上下文要使用app.app_context()人工创建
 def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
 
-
+# 实现异步发送邮件，防止阻塞
 def send_email(to, subject, template, **kwargs):
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
+
+	# 开启独立发送线程
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
     return thr
