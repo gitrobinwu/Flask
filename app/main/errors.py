@@ -1,4 +1,6 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template
+# 导入蓝本
 from . import main
 
 

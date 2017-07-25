@@ -1,11 +1,15 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, session, redirect, url_for, current_app
+# 使用相对路径导入模块
 from .. import db
 from ..models import User
 from ..email import send_email
+# 导入蓝本
 from . import main
+# 从当前包中导入模块
 from .forms import NameForm
 
-
+# 蓝本中定义路由
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = NameForm()

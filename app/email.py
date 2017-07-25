@@ -1,6 +1,8 @@
+#-*- coding:utf-8 -*- 
 from threading import Thread
 from flask import current_app, render_template
 from flask_mail import Message
+# 导入mail扩展
 from . import mail
 
 
@@ -10,7 +12,9 @@ def send_async_email(app, msg):
 
 
 def send_email(to, subject, template, **kwargs):
+	# current_app 程序上下文 当前激活程序的程序实例
     app = current_app._get_current_object()
+
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
