@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 import os
 from flask import Flask, render_template, session, redirect, url_for
 from flask_script import Manager, Shell
@@ -18,14 +19,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
+
+app.config['MAIL_SERVER'] = 'mx.besttone.com.cn'
+app.config['MAIL_PORT'] = 25 
+app.config['MAIL_USE_TLS'] = False 
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
 app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
-app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <flasky@example.com>'
-app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_MAIL_SENDER'] = 'wuyongwei@besttone.com.cn'
+#app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_ADMIN'] = "wuyongwei@besttone.com.cn"
 
 manager = Manager(app)
 bootstrap = Bootstrap(app)
@@ -54,7 +58,7 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
+# 发送邮件
 def send_email(to, subject, template, **kwargs):
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
