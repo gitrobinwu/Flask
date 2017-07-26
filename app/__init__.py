@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -11,8 +12,11 @@ mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
 
+# 已登录用户的会话管理	
 login_manager = LoginManager()
+# 提供不同的安全等级防止用户会话遭篡改
 login_manager.session_protection = 'strong'
+# 设置登录页面的端点 
 login_manager.login_view = 'auth.login'
 
 
