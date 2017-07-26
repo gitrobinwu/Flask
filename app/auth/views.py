@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
@@ -37,5 +38,8 @@ def register():
                     password=form.password.data)
         db.session.add(user)
         flash('You can now login.')
+		# 注册用户，并跳转到登录页面
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
+
+
