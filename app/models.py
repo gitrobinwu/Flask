@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 
@@ -18,7 +19,9 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
-
+	
+	# 如果试图读取password属性的值，则返回错误
+	# 因为生成的散列值已经无法还原成原来的密码
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')

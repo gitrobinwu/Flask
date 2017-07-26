@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
@@ -21,7 +22,8 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
 
-    from .main import main as main_blueprint
+    # 向程序注册蓝本
+	from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
     return app
