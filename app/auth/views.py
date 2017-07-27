@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
@@ -8,6 +9,7 @@ from ..email import send_email
 from .forms import LoginForm, RegistrationForm
 
 
+# 每次请求之前运行
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated \
@@ -20,6 +22,7 @@ def before_request():
 
 @auth.route('/unconfirmed')
 def unconfirmed():
+	# 如果当前用户是匿名用户，或者用户已经登录
     if current_user.is_anonymous or current_user.confirmed:
         return redirect(url_for('main.index'))
     return render_template('auth/unconfirmed.html')
@@ -62,11 +65,14 @@ def register():
     return render_template('auth/register.html', form=form)
 
 
+# 需要先登录才能执行视图函数		
 @auth.route('/confirm/<token>')
 @login_required
 def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('main.index'))
+	# 确认成功后，User模型中confirmed属性的值会被修改并添加到会话中
+	# 请求处理完成后，这两个操作被提交到数据库
     if current_user.confirm(token):
         flash('You have confirmed your account. Thanks!')
     else:
@@ -74,6 +80,7 @@ def confirm(token):
     return redirect(url_for('main.index'))
 
 
+#需要重新登录再重新确认		
 @auth.route('/confirm')
 @login_required
 def resend_confirmation():
