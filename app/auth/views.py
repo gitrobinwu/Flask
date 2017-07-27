@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
@@ -136,6 +137,7 @@ def password_reset(token):
     return render_template('auth/reset_password.html', form=form)
 
 
+# 必须用户登录后，才能修改邮件地址			
 @auth.route('/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email_request():
@@ -154,7 +156,7 @@ def change_email_request():
             flash('Invalid email or password.')
     return render_template("auth/change_email.html", form=form)
 
-
+# 登录之后改变密码
 @auth.route('/change-email/<token>')
 @login_required
 def change_email(token):
