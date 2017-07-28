@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -23,6 +24,7 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
+	# 生成用户角色
     @staticmethod
     def insert_roles():
         roles = {
@@ -64,6 +66,7 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
 
+	# 为用户生成虚拟数据
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
@@ -210,6 +213,7 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+	# 随机生成文章
     @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
