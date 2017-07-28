@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
@@ -12,6 +13,7 @@ from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:
+		# 更新最后访问时间
         current_user.ping()
         if not current_user.confirmed \
                 and request.endpoint \

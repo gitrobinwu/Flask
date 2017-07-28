@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, url_for, abort, flash
 from flask_login import login_required, current_user
 from . import main
@@ -12,11 +13,13 @@ def index():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
+		# 提交博客文章(获取真正的用户对象)
         post = Post(body=form.body.data,
                     author=current_user._get_current_object())
         db.session.add(post)
         return redirect(url_for('.index'))
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
+	# 按timestamp排序，返回博客文章列表
+    posts = Post.query.order_by(Post.timestamp.desc()).all()	
     return render_template('index.html', form=form, posts=posts)
 
 
