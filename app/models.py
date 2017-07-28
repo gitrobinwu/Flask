@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -61,6 +62,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+	# 缓存md5值 
     avatar_hash = db.Column(db.String(32))
 
     def __init__(self, **kwargs):
