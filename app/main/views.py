@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app, make_response
 from flask_login import login_required, current_user
@@ -143,7 +144,7 @@ def unfollow(username):
     flash('You are not following %s anymore.' % username)
     return redirect(url_for('.user', username=username))
 
-
+# 关注了该用户的用户
 @main.route('/followers/<username>')
 def followers(username):
     user = User.query.filter_by(username=username).first()
@@ -161,6 +162,7 @@ def followers(username):
                            follows=follows)
 
 
+# 该用户所关注的用户	
 @main.route('/followed-by/<username>')
 def followed_by(username):
     user = User.query.filter_by(username=username).first()

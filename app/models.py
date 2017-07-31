@@ -288,4 +288,4 @@ class Post(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
-db.event.listen(Post.body, 'set', Post.on_changed_body)
+#db.event.listen(Post.body, 'set', Post.on_changed_body)
