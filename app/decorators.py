@@ -1,9 +1,10 @@
+#-*- coding:utf-8 -*- 
 from functools import wraps
 from flask import abort
 from flask_login import current_user
 from .models import Permission
 
-
+# 权限检查
 def permission_required(permission):
     def decorator(f):
         @wraps(f)
@@ -14,6 +15,6 @@ def permission_required(permission):
         return decorated_function
     return decorator
 
-
+# admin 权限检查
 def admin_required(f):
     return permission_required(Permission.ADMINISTER)(f)

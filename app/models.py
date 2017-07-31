@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -163,10 +164,12 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+	# 检测用户是否具备某权限		
     def can(self, permissions):
         return self.role is not None and \
             (self.role.permissions & permissions) == permissions
 
+	# 检测用户是否具备admin权限	
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
@@ -187,8 +190,9 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
+# 匿名用户
 class AnonymousUser(AnonymousUserMixin):
+	# 如果当前用户是匿名用户，则权限测试总是返回False 
     def can(self, permissions):
         return False
 
@@ -201,7 +205,7 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
+################################################
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -210,6 +214,7 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+	# 生成博客虚拟数据
     @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
