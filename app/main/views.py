@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*- 
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app
 from flask_login import login_required, current_user
@@ -81,13 +82,13 @@ def edit_profile_admin(id):
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
 
-
+# 博客固定链接 
 @main.route('/post/<int:id>')
 def post(id):
     post = Post.query.get_or_404(id)
     return render_template('post.html', posts=[post])
 
-
+# 编辑博客链接，必须登录才行
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -97,6 +98,7 @@ def edit(id):
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
+		# 自动生成body_html,监听body字段
         post.body = form.body.data
         db.session.add(post)
         flash('The post has been updated.')
