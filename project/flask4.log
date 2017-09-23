@@ -1,0 +1,12 @@
+2017-09-15 10:20:51,880 - WARNING - flask4.py - get - 14 - A warning occurred (42 apples)
+2017-09-15 10:20:51,880 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:26:45,912 - WARNING - flask4.py - get - 14 - A warning occurred (42 apples)
+2017-09-15 10:26:45,913 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:27:30,804 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:27:48,055 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:28:24,212 - WARNING - flask4.py - get - 14 - A warning occurred (42 apples)
+2017-09-15 10:28:24,213 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:28:56,669 - WARNING - flask4.py - get - 14 - A warning occurred (42 apples)
+2017-09-15 10:28:56,669 - ERROR - flask4.py - get - 15 - An error occurred
+2017-09-15 10:29:29,009 - WARNING - flask4.py - get - 14 - A warning occurred (42 apples)
+2017-09-15 10:29:29,010 - ERROR - flask4.py - get - 15 - An error occurred
