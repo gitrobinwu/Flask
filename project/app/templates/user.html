@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}关于我{% endblock %}
+
+{% block page_content %}
+<div class="container container-wrapper">
+	<!-- 用户个人资料内容 -->
+	<div style="margin: 30px 30px;">
+	<!-- 昵称 -->
+	<h1>{{ user.username }}</h1>
+	<!-- 真实姓名和所在地 -->
+	{% if user.name or user.location %}
+	<p>
+		{% if user.name %}{{ user.name }}{% endif %}
+		{% if user.location %}
+			<a href="http://map.baidu.com/?q={{ user.location }}">{{ user.location }}</a>
+		{% endif %} 
+	</p>
+	{% endif %}
+	<!-- 如果用户登录，显示邮箱地址 -->
+	{% if current_user.is_authenticated %}
+	<p>
+		<a href="mailto:{{ user.email }}">{{ user.email }}</a>
+	</p>
+	{% endif %}
+	<!-- 自我简介 -->
+	{% if user.about_me %}
+		<p>{{ user.about_me }}</p>
+	{% endif %}
+	{% if user.member_since %}
+	<p>注册时间:&nbsp;{{ moment(user.member_since).format('L') }}</p>
+	{% endif %}
+	{% if user.last_seen %}
+	<p>上次登陆时间:&nbsp;{{ moment(user.last_seen).fromNow() }}</p>
+	{% endif %}
+
+	<!-- 编辑用户资料 -->
+	<p>
+		<!-- 只能编辑当前个人用户 -->
+		{% if user == current_user %}
+			<a class="btn btn-default" href="{{ url_for('.edit_profile') }}">
+				编辑信息
+			</a>
+		{% endif %}
+		<!-- 管理员可编辑任何用户信息 -->
+		{% if current_user.is_administrator() %}
+			<a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">
+			 编辑信息[管理员]
+			</a>
+		{% endif %}
+	</p>
+	</div>
+	
+	<!-- 用户相关的文章列表 -->
+	{% if posts %}
+	<div>
+		<h3>Posts by {{ user.username }}</h3>
+		{% include 'include/_posts.html' %}
+	</div>
+	{% endif %}
+</div>
+{% endblock %}
+
+
+

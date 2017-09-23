@@ -1,0 +1,30 @@
+<div class="container">
+	<div class="row">
+		<ul class="posts">
+			<!-- 遍历博客内容 -->
+			{% for post in posts %}
+			<li class="post">
+				<!-- 标识 -->
+				<div class="post-thumbnail">
+					<a href="{{ url_for('.user',username=post.author.username) }}">
+						{{ post.author.username }}
+					</a>
+				</div>
+
+				<!-- 博客文章 -->	
+				<div class="post-content">
+					<!-- 发表时间 -->
+					<div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
+					<!-- 发表作者 -->
+					<div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
+					<!-- 内容 -->
+					<div class="post-body">{{ post.title }}<br/>{{ post.body }}</div>
+				<div>
+				</div>
+			</li>
+			{% endfor %}
+		<ul>
+	</div>
+</div>
+
+
