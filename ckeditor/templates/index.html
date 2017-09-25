@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+	<head>
+		<title>完整demo</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<script type="text/javascript" src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+		<script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+	</head>
+	<body>
+		<div>
+			<h1>完整demo</h1>
+			<form id="ckformid" method="post">
+				<textarea id="editor" name="ckeditor"></textarea>	
+				<input type="button" value="保存" id="save"></input>
+			<form>
+
+			<button id="btn1">设置</button>
+			<button id="btn2">获取</button>
+		</div>
+
+		<div>
+			<p id="test1">这是一个段落</p>
+		</div>
+
+		<script type="text/javascript" src="{{ url_for('static',filename='ck.js')}} "></script>
+	</body>
+</html>
+
+
