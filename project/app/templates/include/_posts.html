@@ -19,6 +19,24 @@
 					<div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
 					<!-- 内容 -->
 					<div class="post-body">{{ post.title }}<br/>{{ post.body }}</div>
+
+					<!-- 文章的固定链接 -->
+					<div class="post-footer">
+						<!-- 当前用户是文章作者 -->
+						{% if current_user == post.author %}
+						<a href="{{ url_for('.edit',id=post.id) }}">
+							<span class="label label-primary">编辑</span>
+						</a>
+						<!-- 当前用户是管理员 -->
+						{% elif current_user.is_administrator() %}
+						<a href="{{ url_for('.edit',id=post.id) }}">
+							<span class="label label-danger">编辑[管理员]</span>
+						</a>
+						{% endif %}
+						<a href="{{ url_for('.post', id=post.id) }}">
+							<span class="label label-default">文章链接</span>
+						</a>
+					</div>
 				<div>
 				</div>
 			</li>

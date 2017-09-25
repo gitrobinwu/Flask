@@ -84,7 +84,7 @@ class User(UserMixin,db.Model):
 		import forgery_py
 
 		seed()
-		for i in range(count=100):
+		for i in range(count):
 			u = User(email=forgery_py.internet.email_address(),
 					username=forgery_py.internet.user_name(True),
 					password=forgery_py.lorem_ipsum.word(),
@@ -218,8 +218,9 @@ def load_user(user_id):
 class Post(db.Model):
 	__tablename__ = 'posts'
 	id = db.Column(db.Integer,primary_key=True)
-	title = db.Column(db.String(64),unique=True) # 标题
-	body = db.Column(db.Text) # 正文
+	title = db.Column(db.String(64)) # 标题
+	body = db.Column(db.Text) # 源文本
+
 	timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 
@@ -247,7 +248,5 @@ class Post(db.Model):
 		for post in posts:
 			db.session.delete(post)
 			db.session.commit() 
-
-		  
 
 

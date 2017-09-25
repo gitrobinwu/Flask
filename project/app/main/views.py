@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*- 
-from flask import render_template,redirect, url_for,flash 
+from flask import render_template,redirect, url_for,flash,current_app,request,abort 
 from flask_login import login_required,current_user 
 from . import main
 from .. import db
@@ -11,7 +11,6 @@ from ..decorators import admin_required
 @main.route('/', methods=['GET', 'POST'])
 def index():
 	form = PostForm()
-	print '11111111111111111111111111111'
 	# 检查当前用户具有写权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
 			form.validate_on_submit():
@@ -20,16 +19,30 @@ def index():
 		db.session.add(post)
 		return redirect(url_for('main.index'))
 	#按时间排序返回博客文章
-	posts = Post.query.order_by(Post.timestamp.desc()).all()
-	return render_template('index.html',form=form,posts=posts)
+	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
+	pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+	
+	# 返回当前分页记录
+	posts = pagination.items 
+	return render_template('index.html',form=form,posts=posts,
+							pagination=pagination)
 
 # 关于我	
 @main.route('/user/<username>')
 def user(username):
 	user = User.query.filter_by(username=username).first_or_404()
 	# 返回当前用户的博客文章列表
-	posts = user.posts.order_by(Post.timestamp.desc()).all()
-	return render_template('user.html',user=user,posts=posts)
+	page = request.args.get('page', 1, type=int)
+	pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
+			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+			error_out=False)
+	
+	# 返回当前分页记录
+	posts = pagination.items
+	return render_template('user.html',user=user,posts=posts,
+							pagination=pagination)
 
 # 用户个人资料编辑	
 @main.route('/edit-profile',methods=['GET','POST'])
@@ -76,5 +89,31 @@ def edit_profile_admin(id):
 	form.about_me.data = user.about_me 
 	return render_template('edit_profile.html',form=form)
 
+# 文章的固定链接
+@main.route('/post/<int:id>')
+def post(id):
+	post = Post.query.get_or_404(id)
+	return render_template('post.html',post=post,posts=[post])
 
-		
+
+# 编辑文章
+@main.route('/edit/<int:id>',methods=['GET','POST'])
+@login_required
+def edit(id):
+	post = Post.query.get_or_404(id)
+	# 不是管理员或者文章作者返回403 
+	if current_user != post.author and \
+			not current_user.can(Permission.ADMINISTER):
+		abort(403)
+	form = PostForm() 
+	if form.validate_on_submit():
+		post.title= form.title.data 
+		post.body = form.body.data
+		db.session.add(post)
+		flash(u'文章已经被更新')
+		return redirect(url_for('.post', id=post.id))
+	form.title.data = post.title
+	form.body.data = post.body 
+	return render_template('edit_post.html',form=form)
+
+

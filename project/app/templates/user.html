@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'include/_macros.html' import pagination_widget %}
 
 {% block title %}关于我{% endblock %}
 
@@ -56,6 +57,13 @@
 	<div>
 		<h3>Posts by {{ user.username }}</h3>
 		{% include 'include/_posts.html' %}
+	</div>
+	{% endif %}
+
+	<!-- 显示分页链接 -->
+	{% if pagination %}	
+	<div class="pagination">
+		{{ pagination_widget(pagination,'.user',username=user.username) }}
 	</div>
 	{% endif %}
 </div>

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% from 'include/_macros.html' import pagination_widget %}
 
 {% block title %}首页{% endblock %}
 
@@ -32,6 +33,13 @@
 <!-- 博客文章列表 -->
 {% if posts %}
 {% include 'include/_posts.html' %}
+{% endif %}
+
+<!-- 显示分页链接 -->
+{% if pagination %}	
+<div class="pagination">
+	{{ pagination_widget(pagination,'.index')}}
+</div>
 {% endif %}
 {% endblock %}
 

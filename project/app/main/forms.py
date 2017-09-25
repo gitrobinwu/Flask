@@ -5,7 +5,6 @@ from wtforms.validators import Length,DataRequired,Email,Regexp
 from wtforms import ValidationError
 from ..models import Role,User,Post
 
-
 # 普通用户资料表单,所有字段是可选的
 class EditProfileForm(FlaskForm):
 	name = StringField(label=u'真实姓名',validators=[Length(0,64)])
@@ -52,12 +51,5 @@ class PostForm(FlaskForm):
 	title = StringField(label=u'博客标题',validators=[DataRequired()])
 	body = TextAreaField(label=u'博客内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')
-
-	'''def validate_title(self,field):
-		print '2222222222222222222222'
-		if Post.query.filter_by(title=field.title).first():
-			print '11111111111111111111111'
-			raise ValidationError(u'与其他博客标题发生冲突')	
-	'''		
 
 

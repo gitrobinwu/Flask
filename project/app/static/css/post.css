@@ -31,3 +31,16 @@ div.post-content {
     margin-left: 48px;
     min-height: 48px;
 }
+div.post-footer {
+	text-align: right;
+}
+
+/*分页*/
+div.pagination {
+	width: 100%;
+	text-align: right;
+	padding: 0px;
+	margin: 0px;
+}
+
+
