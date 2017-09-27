@@ -1,2 +1,4 @@
 project/*.py[cod]
 venv
+weblog/*
+
