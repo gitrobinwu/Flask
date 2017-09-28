@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+	<head>
+		<title>测试flask-ckeditor</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<script type="text/javascript" src="{{
+		url_for('static', filename='ckeditor-dev/ckeditor.js') }}"></script>
+		<script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+
+		<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">  
+		<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+
+	<body>
+		<div class="container">
+			<h1>FlaskCkeditor</h1>
+			<form id="ckdemoid" method="post">
+				{{ form.csrf_token }}<br/>
+				{{ form.hidden_tag() }}
+				{{ form.title(placeholder="appDemo") }}
+				{{ form.ckdemo }}
+				<script type="text/javascript" src="{{ url_for('static',filename='ck.js') }}"></script>
+				{{ form.submit(class="btn btn-primary") }}
+			</form>
+			<button id="btn1" class="btn btn-default">设置</button>
+			<button id="btn2" class="btn btn-default">获取</button>
+			<script>
+				$("#btn1").click(function(){ 
+					CKEDITOR.instances.ckdemo.setData('<b>This is for test 11111111</b>');
+				});
+
+				
+				$('#btn3').click(function(){
+					CKEDITOR.instances.ckdemo.setData('<b>This is for test 33333333</b>');
+				});
+			</script>
+		</div>
+
+		<div class="container">
+			<p id="test1">这是一个段落</p>
+		</div>
+	</body>
+</html>
+
+
+
+
+
+

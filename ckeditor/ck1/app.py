@@ -16,15 +16,14 @@ def gen_rnd_filename():
 def index():
 	if request.method == "POST":
 		print '-'*60
-		print request.form['ckeditor']
+		print request.form['ckeditor'] 
 		print '-'*60
 		redirect(url_for('index'))
-	
 	return render_template('index.html')
 
 
 # 上传	
-@app.route('/ckupload/', methods=['GET','POST'])
+@app.route('/ckupload', methods=['GET','POST'])
 def ckupload():
 	"""CKEditor file upload"""
 	error = ''

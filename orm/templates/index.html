@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>测试ORM 关系</title>
+	</head>
+	<body>
+		<div>
+			<ul>
+				{% for category in categorys %}
+				<li>
+					<a href="{{ url_for('category',tag=category.tag) }}">
+						<p>
+							<span>{{ category.tag | upper }}</span>
+							<span>{{ category.count }}</span>
+						</p>
+					</a>
+				</li>	
+				{% endfor %}
+			</ul>
+		</div>
+	</body>
+</html>
