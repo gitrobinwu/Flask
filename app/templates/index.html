@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from 'include/_macros.html' import pagination_widget %}
+
+{% block title %}首页{% endblock %}
+
+<!-- 重写页面内容 -->
+{% block page_content %}
+<div class="container">
+	<div class="row">
+		<div class="page-header">
+			<h1>
+				{% if current_user.is_authenticated %}
+				欢迎回来,{{ current_user.username }}
+				{% else %}
+				文章列表
+				{% endif %}
+			</h1>
+		</div>
+	</div>	
+</div>
+<div class="container">
+	<!-- 博客提交表单 -->
+	<!-- 检测当前用户是否有写权限 -->
+	{% if current_user.can(Permission.WRITE_ARTICLES) %}
+	<div class="row">
+		<div>
+			{{ wtf.quick_form(form) }}
+		</div>
+	</div>
+	{% endif %}
+</div>
+<!-- 博客文章列表 -->
+{% if posts %}
+{% include 'include/_posts.html' %}
+{% endif %}
+
+<!-- 显示分页链接 -->
+{% if pagination %}	
+<div class="pagination">
+	{{ pagination_widget(pagination,'.index')}}
+</div>
+{% endif %}
+{% endblock %}
+
+
