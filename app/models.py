@@ -64,7 +64,10 @@ class User(UserMixin,db.Model):
 	role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 	# 确认账户
 	confirmed = db.Column(db.Boolean,default=False)
-	
+
+	# 新增用户头像
+	real_avatar = db.Column(db.String(128),default=None)
+
 	name = db.Column(db.String(64)) # 真实姓名
 	location = db.Column(db.String(64)) # 所在地
 	# db.String 和db.Text 的区别在于后者不需要指定最大长度 

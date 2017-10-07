@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*- 
 from flask_wtf import FlaskForm
-from wtforms import StringField,TextAreaField,SubmitField,BooleanField,SelectField 
+from wtforms import StringField,TextAreaField,SubmitField,BooleanField,SelectField
+from flask_wtf.file import FileField,FileAllowed, FileRequired
 from wtforms.validators import Length,DataRequired,Email,Regexp  
 from wtforms import ValidationError
 from ..models import Role,User,Post
@@ -9,7 +10,11 @@ from ..models import Role,User,Post
 class EditProfileForm(FlaskForm):
 	name = StringField(label=u'真实姓名',validators=[Length(0,64)])
 	location = StringField(label=u'地址',validators=[Length(0,64)])
-	about_me = TextAreaField(label=u'关于我')
+	about_me = TextAreaField(label=u'自我描述')
+	avatar = FileField(u'头像',validators=[
+			FileRequired(),
+			FileAllowed(['jpg','png','jpeg','gif'], u'仅允许上传图片类型文件!')
+		])	
 	submit = SubmitField(label=u'提交')
 
 
@@ -22,7 +27,11 @@ class EditProfileAdminForm(FlaskForm):
 
 	name = StringField(label=u'真实姓名',validators=[Length(0,64)])
 	location = StringField(label=u'地址',validators=[Length(0,64)])
-	about_me = TextAreaField(label=u'关于我')
+	about_me = TextAreaField(label=u'自我描述')
+	avatar = FileField(u'头像',validators=[
+			FileRequired(),
+			FileAllowed(['jpg','png','jpeg','gif'], u'仅允许上传图片类型文件!')
+		])	
 	submit = SubmitField(label=u'提交')
 
 	# 初始化时要对role的下拉列表进行填充值 

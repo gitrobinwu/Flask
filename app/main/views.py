@@ -43,7 +43,7 @@ def user(username):
 	posts = pagination.items
 	return render_template('user.html',user=user,posts=posts,
 							pagination=pagination)
-
+	
 # 用户个人资料编辑	
 @main.route('/edit-profile',methods=['GET','POST'])
 @login_required 
@@ -53,8 +53,17 @@ def edit_profile():
 		current_user.name = form.name.data
 		current_user.location = form.location.data
 		current_user.about_me = form.about_me.data
+		# 新增提交用户头像
+		avatar = request.files['avatar']
+		filename = avatar.filename
+		# 上传路径
+		UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
+		filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,current_user.username,filename)
+		avatar.save(filepath)
+		staticfile = u'/static/avatar/{0}_{1}'.format(current_user.username,filename)
+		current_user.real_avatar = staticfile
 		db.session.add(current_user)
-		flash(u'您的个人信息已经被更改')
+		flash(u'您的个人信息已经更新')
 		return redirect(url_for('main.user',username=current_user.username)) # 更新个人资料
 	form.name.data = current_user.name 
 	form.location.data = current_user.location 
