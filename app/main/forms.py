@@ -5,6 +5,7 @@ from flask_wtf.file import FileField,FileAllowed, FileRequired
 from wtforms.validators import Length,DataRequired,Email,Regexp  
 from wtforms import ValidationError
 from ..models import Role,User,Post
+from flaskckeditor import CKEditor
 
 # 普通用户资料表单,所有字段是可选的
 class EditProfileForm(FlaskForm):
@@ -61,4 +62,9 @@ class PostForm(FlaskForm):
 	body = TextAreaField(label=u'博客内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')
 
-
+# 博客文章表单
+class CKEditorPostForm(FlaskForm,CKEditor):
+	title = StringField(label=u'博客标题',validators=[DataRequired()])
+	ckhtml = TextAreaField(label=u'博客内容',validators=[DataRequired()])
+	submit = SubmitField(label=u'提交')	
+	

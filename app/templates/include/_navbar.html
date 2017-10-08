@@ -17,9 +17,9 @@
 			<a href="{{ url_for('main.index') }}">
 				<span class="glyphicon glyphicon-home">&nbsp;首页</span></a>
 			</li>
-			<li><a href="#">写博客</a></li>
 			<!-- 显示当前用户资料 -->
 			{% if current_user.is_authenticated %}
+				<li><a href="{{ url_for('main.write_post') }}">写博客</a></li>
 				<li><a href="{{ url_for('main.user',username=current_user.username) }}">关于我</a></li>
 			{% endif %}
         </ul>

@@ -17,6 +17,7 @@ def login():
 		if user is not None and user.verify_password(form.password.data): #密码验证成功
 			# 在用户会话中把用户标记为已登录
 			login_user(user,form.remember_me.data)
+			flash(u'欢迎回来%s' % user.username)
 			# 用户访问未授权的URL时会显示登录表单，Flask-Login会把原地址保存在查询字符串next参数
 			# 这个参数可从request.args字典中读取
 			return redirect(request.args.get('next') or url_for('main.index'))

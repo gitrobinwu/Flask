@@ -1,23 +1,15 @@
 #-*- coding:utf-8 -*- 
-from flask import render_template,redirect, url_for,flash,current_app,request,abort 
+from flask import render_template,redirect, url_for,flash,current_app,request,abort
 from flask_login import login_required,current_user 
 from . import main
 from .. import db
 from ..models import User,Role,Permission,Post 
-from .forms import EditProfileForm,EditProfileAdminForm,PostForm  
+from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm
 from ..decorators import admin_required 
 
 # 首页-->处理博客文章
 @main.route('/', methods=['GET', 'POST'])
 def index():
-	form = PostForm()
-	# 检查当前用户具有写权限
-	if current_user.can(Permission.WRITE_ARTICLES) and \
-			form.validate_on_submit():
-		post = Post(title=form.title.data,body=form.body.data,
-					author=current_user._get_current_object()) # 返回真正的用户对象
-		db.session.add(post)
-		return redirect(url_for('main.index'))
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 	pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
@@ -26,9 +18,27 @@ def index():
 	
 	# 返回当前分页记录
 	posts = pagination.items 
-	return render_template('index.html',form=form,posts=posts,
+	return render_template('index.html',posts=posts,
 							pagination=pagination)
+# 写博客
+@main.route('/write-post',methods=['GET','POST'])
+def write_post():
+	form = CKEditorPostForm()	
+	# 检查用户是否有写博客权限
+	if current_user.can(Permission.WRITE_ARTICLES) and \
+		form.validate_on_submit():
+		post = Post(title=form.title.data,body=form.ckhtml.data,
+				author=current_user._get_current_object())
+		db.session.add(post)
+		return redirect(url_for('main.index'))
+	return render_template('write_post.html',form=form)	
 
+# 上传文件或者图片
+@main.route('/ckupload/',methods=['GET','POST'])
+def ckupload():
+	form = CKEditorPostForm()
+	return form.upload(endpoint=current_app)
+	
 # 关于我	
 @main.route('/user/<username>')
 def user(username):
@@ -53,6 +63,7 @@ def edit_profile():
 		current_user.name = form.name.data
 		current_user.location = form.location.data
 		current_user.about_me = form.about_me.data
+
 		# 新增提交用户头像
 		avatar = request.files['avatar']
 		filename = avatar.filename
@@ -86,6 +97,16 @@ def edit_profile_admin(id):
 		user.name = form.name.data 
 		user.location = form.location.data 
 		user.about_me = form.about_me.data 
+
+		# 新增提交用户头像
+		avatar = request.files['avatar']
+		filename = avatar.filename
+		# 上传路径
+		UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
+		filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,user.username,filename)
+		avatar.save(filepath)
+		staticfile = u'/static/avatar/{0}_{1}'.format(user.username,filename)
+		user.real_avatar = staticfile
 		db.session.add(user)
 		flash(u'该用户的信息已经更新了')
 		return redirect(url_for('.user',username=user.username))
