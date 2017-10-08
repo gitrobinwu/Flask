@@ -43,11 +43,20 @@
 			padding-left: 30px;
 			padding-right: 10px;
 		}
+		.userTitle {
+			position: relative;
+			left: -90px;
+			margin: 20px auto;
+			border-top: 1px dashed #CCC;
+			line-height: 45px;
+			width: 75%;
+			font-size: 23px;
+		}
 	</style>
 {% endblock %}
 
 {% block page_content %}
-<div class="container container-wrapper">
+<div class="container container-wrapper" style="width: 80%;">
 	<div class="row" style="padding-left: 30px; padding-top: 10px;">
 		<div class="profile-left col-md-3">
 		<!-- 用户头像 -->
@@ -55,7 +64,7 @@
 			{% if user.real_avatar %}
 				<img src="{{ user.real_avatar }}"  class="img-circle img-size" alt="user-avatar">
 			{% else %}
-				<img class="img-circle img-size" lt="default-user-avatar" src="/static/avatar/default.jpg">
+				<img class="img-circle img-size" alt="default-user-avatar" src="/static/avatar/default.jpg">
 			{% endif %}
 		</div>
 		<!-- 昵称 -->
@@ -123,16 +132,20 @@
 		</div>
 		</div>
 	</div>
-	
-	<!-- -->
+</div>	<!-- end container -->
+
+<div class="container">
+	<!-- header -->
 	<div class="row">
-		<!-- 用户相关的文章列表 -->
-		{% if posts %}
-		<div>
-			<h3>Posts by {{ user.username }}</h3>
-			{% include 'include/_posts.html' %}
+		<div class="userTitle">
+			<span>用户发表过的文章列表</span>
 		</div>
-		{% endif %}
+	</div>
+
+	<!-- 用户发表的博客文章列表 -->
+	<div class="row">
+		<div style="position: relative; left: -15px;">
+		{% include 'include/_posts.html' %}
 
 		<!-- 显示分页链接 -->
 		{% if pagination %}	
@@ -140,9 +153,15 @@
 			{{ pagination_widget(pagination,'.user',username=user.username) }}
 		</div>
 		{% endif %}
+		</div>
 	</div>
 </div>
 {% endblock %}
 
+<!-- 根据博客具体内容长度，动态决定是否隐藏超出内容 -->
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/blog.js') }}"></script>
+{% endblock %}
 
 

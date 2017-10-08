@@ -1,46 +1,59 @@
-	<div class="row">
-		<ul class="posts">
-			<!-- 遍历博客内容 -->
-			{% for post in posts %}
-			<li class="post">
-				<!-- 标识 -->
-				<div class="post-thumbnail">
-					<a href="{{ url_for('.user',username=post.author.username) }}">
-						{{ post.author.username }}
-					</a>
-				</div>
+<!-- 博客文章列表 -->
+{% if posts %}
+<ul class="posts">
+	<!-- 遍历博客内容 -->
+	{% for post in posts %}
+	<li class="listBox">
+		<div class="listBoxTop">
+			<!-- 作者头像 -->
+			<div class="listBoxAvatar">
+				{% if post.author.real_avatar %}
+					<img src="{{ post.author.real_avatar }}"  class="img-rounded blogimg-size" alt="user-avatar">
+				{% else %}
+					<img class="img-rounded blogimg-size" alt="default-user-avatar" src="/static/avatar/default.jpg">
+				{% endif %}	
+			</div>
+			<div class="listBoxTitle">
+				<h2>
+					<a href="{{ url_for('main.post', id=post.id) }}" title="{{ post.title }}">{{ post.title }}</a>
+				</h2>
+				<span class="timeAuthor">
+					发布于：<small>{{ moment(post.timestamp).format('YYYY-MM-DD') }}</small>
+					&nbsp;&nbsp;|&nbsp;&nbsp;作者：<small>{{ post.author.username }}</small>
+					</span>
+			</div>	
+		</div>	
 
-				<!-- 博客文章 -->	
-				<div class="post-content">
-					<!-- 发表时间 -->
-					<div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
-					<!-- 发表作者 -->
-					<div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
-					<!-- 内容 -->
-					<div class="post-body">{{ post.title }}<br/>{{ post.body|truncate(250)|prettify|safe }}</div>
+		<div class="listBoxCenter">
+			<!-- 内容 -->
+			<div class="post-body">{{ post.body|safe }}</div>
+		</div>
+		
+		<!-- 是否全文查看状态 -->
+		{% if not onepost %}
+		<div class="listBoxBottom">
+			<div class="readMore">
+				<a href="{{ url_for('.post', id=post.id) }}">
+					<span>+阅读全文</span>
+				</a>
+			</div>
 
-					<!-- 文章的固定链接 -->
-					<div class="post-footer">
-						<!-- 当前用户是文章作者 -->
-						{% if current_user == post.author %}
-						<a href="{{ url_for('.edit',id=post.id) }}">
-							<span class="label label-primary">编辑</span>
-						</a>
-						<!-- 当前用户是管理员 -->
-						{% elif current_user.is_administrator() %}
-						<a href="{{ url_for('.edit',id=post.id) }}">
-							<span class="label label-danger">编辑[管理员]</span>
-						</a>
-						{% endif %}
-						<a href="{{ url_for('.post', id=post.id) }}">
-							<span class="label label-default">文章链接</span>
-						</a>
-					</div>
-				<div>
-				</div>
-			</li>
-			{% endfor %}
-		<ul>
-	</div>
+			<!-- 当前用户是文章作者 -->
+			{% if current_user == post.author %}
+			<a href="{{ url_for('.edit',id=post.id) }}">
+				<span class="label label-primary">编辑</span>
+			</a>
+			<!-- 当前用户是管理员 -->
+			{% elif current_user.is_administrator() %}
+			<a href="{{ url_for('.edit',id=post.id) }}">
+				<span class="label label-danger">编辑[管理员]</span>
+			</a>
+			{% endif %}
+		</div>
+		{% endif %}
+	</li><!--listBox-->
+	{% endfor %}
+<ul>
+{% endif %}
 
 

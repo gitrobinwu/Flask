@@ -4,21 +4,43 @@
 
 {% block title %}首页{% endblock %}
 
+{% block styles %}
+	{{ super() }}
+	<style>
+		.blog-main {
+			margin-top: 20px;
+		}
+		.blog-sidebar {
+			margin-top: 20px;
+		}
+	</style>
+{% endblock %}
+
 <!-- 重写页面内容 -->
 {% block page_content %}
+<div class="container">
+<div class="row">
+	<div class="col-sm-9 blog-main">
+		<!-- 博客文章列表 -->
+		{% include 'include/_posts.html' %}
+		<!-- 显示分页链接 -->
+		{% if pagination %}	
+		<div class="pagination">
+			{{ pagination_widget(pagination,'.index')}}
+		</div>
+		{% endif %}
+	</div><!-- blog-main-->
 
-<!-- 博客文章列表 -->
-{% if posts %}
-{% include 'include/_posts.html' %}
-{% endif %}
+	<div class="col-sm-3 blog-sidebar">
+	</div><!--blog-sidebar-->
+</div><!--row-->
+</div><!--container-->
+{% endblock %}
 
-<!-- 显示分页链接 -->
-{% if pagination %}	
-<div class="pagination">
-	{{ pagination_widget(pagination,'.index')}}
-</div>
-{% endif %}
-
+<!-- 根据博客具体内容长度，动态决定是否隐藏超出内容 -->
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/blog.js') }}"></script>
 {% endblock %}
 
 

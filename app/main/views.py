@@ -17,8 +17,9 @@ def index():
 			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
 	
 	# 返回当前分页记录
-	posts = pagination.items 
-	return render_template('index.html',posts=posts,
+	posts = pagination.items
+	# 非全文查看状态
+	return render_template('index.html',onepost=False,posts=posts,
 							pagination=pagination)
 # 写博客
 @main.route('/write-post',methods=['GET','POST'])
@@ -51,7 +52,8 @@ def user(username):
 	
 	# 返回当前分页记录
 	posts = pagination.items
-	return render_template('user.html',user=user,posts=posts,
+	# 非全文查看状态
+	return render_template('user.html',user=user,onepost=False,posts=posts,
 							pagination=pagination)
 	
 # 用户个人资料编辑	
@@ -123,7 +125,8 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>')
 def post(id):
 	post = Post.query.get_or_404(id)
-	return render_template('post.html',post=post,posts=[post])
+	# 全文查看状态
+	return render_template('post.html',onepost=True,post=post,posts=[post])
 
 
 # 编辑文章

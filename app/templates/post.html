@@ -4,7 +4,13 @@
 
 <!-- 显示文章内容 -->
 {% block page_content %}
-{% include 'include/_posts.html' %}
+<div class="container">
+<div class="row">
+	<!-- 博客文章列表 -->
+	{% include 'include/_posts.html' %}
+</div>	
+</div>
 {% endblock %}
+
 
 
