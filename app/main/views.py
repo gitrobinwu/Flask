@@ -138,15 +138,15 @@ def edit(id):
 	if current_user != post.author and \
 			not current_user.can(Permission.ADMINISTER):
 		abort(403)
-	form = PostForm() 
+	form = CKEditorPostForm()
 	if form.validate_on_submit():
 		post.title= form.title.data 
-		post.body = form.body.data
+		post.body = form.ckhtml.data
 		db.session.add(post)
 		flash(u'文章已经被更新')
 		return redirect(url_for('.post', id=post.id))
 	form.title.data = post.title
-	form.body.data = post.body 
-	return render_template('edit_post.html',form=form)
+	form.ckhtml.data = post.body 
+	return render_template('edit_post.html',post=post,form=form)
 
 

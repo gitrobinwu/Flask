@@ -3,6 +3,20 @@
 
 {% block title %}编辑博客{% endblock %}
 
+{% block styles %}
+{{ super() }}
+<style>
+	.edit-bottom {
+		margin-bottom: 60px;
+	}
+	.edit-main {
+		margin-left: 30px;
+		width: 90%;
+		margin-top: 20px;
+	}
+</style>
+{% endblock %}
+
 {% block page_content %}
 <div class="container">
 	<div class="row">
@@ -12,13 +26,22 @@
 	</div>	
 </div>	
 
-<div class="container container-wrapper">
+<div class="container container-wrapper edit-bottom">
+	<!-- 文章作者或者管理员可以编辑 -->
+	{% if current_user == post.author or current_user.can(Permission.ADMINISTER) %}			
 	<div class="row">	
-		<div class="col-md-6" style="margin: 30px 30px;">
+		<div class="edit-main">
 			{{ wtf.quick_form(form) }}
 		<div>	
-	</div>	
+	</div>
+	{% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='ckeditor-dev/ckeditor.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/ck.js') }}"></script>
 {% endblock %}
 
 

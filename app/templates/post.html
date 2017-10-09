@@ -12,5 +12,15 @@
 </div>
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('.listBox').css('padding-bottom','100px');		
+		$('.posts').css('margin-top','20px');
+	});
+</script>
+{% endblock %}
 
 
