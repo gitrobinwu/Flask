@@ -12,7 +12,7 @@ from ..decorators import admin_required
 def index():
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
-	pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+	pagination = Post.query.order_by(Post.create_time.desc()).paginate(
 			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
 	
@@ -28,7 +28,12 @@ def write_post():
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
 		form.validate_on_submit():
-		post = Post(title=form.title.data,body=form.ckhtml.data,
+		# 摘要不是必须的；如果用户没有输入摘要，那么就截取正文的前200个字符给摘要字段
+		if form.summary.data:
+			fragment = form.summary.data 
+		else:
+			fragment = Post.gen_fragment(form.ckhtml.data)
+		post = Post(title=form.title.data,content=form.ckhtml.data,fragment=fragment+' ...',
 				author=current_user._get_current_object())
 		db.session.add(post)
 		return redirect(url_for('main.index'))
@@ -46,7 +51,7 @@ def user(username):
 	user = User.query.filter_by(username=username).first_or_404()
 	# 返回当前用户的博客文章列表
 	page = request.args.get('page', 1, type=int)
-	pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
+	pagination = user.posts.order_by(Post.create_time.desc()).paginate(
 			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 			error_out=False)
 	
@@ -141,12 +146,21 @@ def edit(id):
 	form = CKEditorPostForm()
 	if form.validate_on_submit():
 		post.title= form.title.data 
-		post.body = form.ckhtml.data
+		post.content = form.ckhtml.data
 		db.session.add(post)
 		flash(u'文章已经被更新')
 		return redirect(url_for('.post', id=post.id))
 	form.title.data = post.title
-	form.ckhtml.data = post.body 
+	form.ckhtml.data = post.content 
 	return render_template('edit_post.html',post=post,form=form)
+
+
+# 根据提供的关键字搜索博客
+@main.route('/search-post',methods=['GET','POST'])
+def search_post():
+	if request.method == 'POST':
+		keyword = request.form['keyword']
+		page = request.args.get('page',1,type=int)
+		pagination = Post.query.filter_by()
 
 

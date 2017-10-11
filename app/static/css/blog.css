@@ -1,5 +1,6 @@
 ul.posts {
 	list-style-type: none;
+	padding: 0px;
 }
 .listBox {
 	margin-bottom: 20px;
@@ -79,6 +80,7 @@ span.timeAuthor small {
 	overflow: hidden;
 	margin-top: 20px;
 }
+/*阅读更多*/
 .readMore {
 	display: inline-block;
 	margin-right: 10px;
@@ -94,6 +96,12 @@ span.timeAuthor small {
 	text-decoration: none;
 	border-bottom: 1px solid #000;
 }
-
+/*尾部分页*/
+div.pagination {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	text-align: left;
+}
 
 

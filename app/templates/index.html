@@ -13,6 +13,35 @@
 		.blog-sidebar {
 			margin-top: 20px;
 		}
+		#searchBox {
+			width: 258px;
+			height: 50px;
+			background: #fff;
+			border: 1px solid #dedede;
+			float: left;
+			overflow: hidden;
+			clear: both;
+		}
+		#searchInput {
+			float: left;
+			width: 193px;
+			font-size: 14px;
+			font-family: Arial;
+			color: #868686;
+			margin-left: 10px;
+			margin-top: 10px;
+			padding: 5px 5px;
+			border: 1px solid #e7e7e7;
+		}
+		#searchSubmit {
+			cursor: pointer;
+			float: left;
+			height: 25px;
+			width: 27px;
+			margin-top: 18px;
+			margin-left: 10px;
+			font-size: 14px;
+		}
 	</style>
 {% endblock %}
 
@@ -23,15 +52,23 @@
 	<div class="col-sm-9 blog-main">
 		<!-- 博客文章列表 -->
 		{% include 'include/_posts.html' %}
+
 		<!-- 显示分页链接 -->
-		{% if pagination %}	
-		<div class="pagination">
+		{% if not onepost and pagination %}	
+			<div class="pagination">
 			{{ pagination_widget(pagination,'.index')}}
-		</div>
+			</div>
 		{% endif %}
 	</div><!-- blog-main-->
 
 	<div class="col-sm-3 blog-sidebar">
+		<!-- 搜索栏 -->
+		<div id="searchBox">
+			<form id="searchForm" action="/search-post" method="post">
+				<input name="keyword" type="text" id="searchInput" value="搜一下，说easy!" onfocus="if(this.value=='搜一下，说easy!'){this.value=''};" onblur="if(this.value==''){this.value='搜一下，说easy!'};">
+				<span id="searchSubmit" class="glyphicon glyphicon-search"></span></input>
+			</form>	
+		</div>
 	</div><!--blog-sidebar-->
 </div><!--row-->
 </div><!--container-->

@@ -44,20 +44,16 @@
 			padding-right: 10px;
 		}
 		.userTitle {
-			position: relative;
-			left: -90px;
-			margin: 20px auto;
-			border-top: 1px dashed #CCC;
 			line-height: 45px;
-			width: 75%;
 			font-size: 23px;
+			margin: 10px 0;
 		}
 	</style>
 {% endblock %}
 
 {% block page_content %}
 <div class="container container-wrapper" style="width: 80%;">
-	<div class="row" style="padding-left: 30px; padding-top: 10px;">
+	<div class="row">
 		<div class="profile-left col-md-3">
 		<!-- 用户头像 -->
 		<div style="text-align: center; margin-top: 25px; margin-bottom: 10px;">
@@ -134,7 +130,7 @@
 	</div>
 </div>	<!-- end container -->
 
-<div class="container">
+<div class="container" style="width: 80%;">
 	<!-- header -->
 	<div class="row">
 		<div class="userTitle">
@@ -144,14 +140,14 @@
 
 	<!-- 用户发表的博客文章列表 -->
 	<div class="row">
-		<div style="position: relative; left: -15px;">
+		<div>
 		{% include 'include/_posts.html' %}
 
 		<!-- 显示分页链接 -->
-		{% if pagination %}	
-		<div class="pagination">
-			{{ pagination_widget(pagination,'.user',username=user.username) }}
-		</div>
+		{% if not onepost and pagination %}	
+			<div class="pagination">
+			{{ pagination_widget(pagination,'.user',username=user.username)}}
+			</div>
 		{% endif %}
 		</div>
 	</div>

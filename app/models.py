@@ -5,6 +5,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask_login import UserMixin,AnonymousUserMixin 
 from . import db,login_manager 
+from lxml import html
+import re
 
 # 按字节位定义权限常量,表示某操作权限
 class Permission:
@@ -222,10 +224,16 @@ class Post(db.Model):
 	__tablename__ = 'posts'
 	id = db.Column(db.Integer,primary_key=True)
 	title = db.Column(db.String(64)) # 标题
-	body = db.Column(db.Text) # 源文本
-
-	timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
+	content = db.Column(db.Text) # 内容
+	fragment = db.Column(db.Text) # 内容片段，用于主页显示 
+	create_time = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
+
+	def __repr__(self):
+		return '<Post %r>' % self.title
+
+	def __unicode__(self):
+		return self.title 
 
 	#生成一批虚拟博客文章 		
 	@staticmethod
@@ -238,8 +246,8 @@ class Post(db.Model):
 		for i in range(count):
 			# 指定随机用户
 			u = User.query.offset(randint(0,user_count-1)).first()
-			p = Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-					timestamp=forgery_py.date.date(True),
+			p = Post(content=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+					create_time=forgery_py.date.date(True),
 					author=u)
 			db.session.add(p)
 			db.session.commit() 
@@ -250,6 +258,14 @@ class Post(db.Model):
 		posts = Post.query.all() 
 		for post in posts:
 			db.session.delete(post)
-			db.session.commit() 
+			db.session.commit() 		
+
+	# 根据博客正文内容，截取前200个字符给摘要字段
+	@staticmethod
+	def gen_fragment(content, size=200):
+		tree = html.fromstring('<div>'+content+'</div>')
+		node = tree.xpath('.')[0]
+		text = re.sub(ur'\s+', ' ', node.text_content()).strip()
+		return text[:size]
 
 

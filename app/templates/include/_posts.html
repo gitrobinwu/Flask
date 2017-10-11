@@ -18,15 +18,19 @@
 					<a href="{{ url_for('main.post', id=post.id) }}" title="{{ post.title }}">{{ post.title }}</a>
 				</h2>
 				<span class="timeAuthor">
-					发布于：<small>{{ moment(post.timestamp).format('YYYY-MM-DD') }}</small>
+					发布于：<small>{{ moment(post.create_time).format('YYYY-MM-DD') }}</small>
 					&nbsp;&nbsp;|&nbsp;&nbsp;作者：<small>{{ post.author.username }}</small>
 					</span>
 			</div>	
 		</div>	
 
 		<div class="listBoxCenter">
-			<!-- 内容 -->
-			<div class="post-body">{{ post.body|safe }}</div>
+			<!-- 单一博客直接显示文章内容否则显示,否则显示摘要片段 -->
+			{% if onepost %}
+				<div class="post-body">{{ post.content | safe }}</div>
+			{% else %}
+				<div class="post-body">{{ post.fragment | safe }}</div>
+			{% endif %}
 		</div>
 		
 		<!-- 是否全文查看状态 -->
@@ -53,7 +57,7 @@
 		{% endif %}
 	</li><!--listBox-->
 	{% endfor %}
-<ul>
+</ul>
 {% endif %}
 
 

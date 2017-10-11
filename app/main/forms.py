@@ -64,8 +64,10 @@ class PostForm(FlaskForm):
 
 # 博客文章表单
 class CKEditorPostForm(FlaskForm,CKEditor):
-	title = StringField(label=u'博客标题',validators=[DataRequired()])
-	ckhtml = TextAreaField(label=u'博客内容',validators=[DataRequired()])
+	title = StringField(label=u'标题',validators=[DataRequired()])
+	# 非必须
+	summary = TextAreaField(label=u'摘要')
+	ckhtml = TextAreaField(label=u'内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')	
 
 
