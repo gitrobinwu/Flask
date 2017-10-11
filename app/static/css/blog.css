@@ -1,3 +1,13 @@
+/* 博客的布局 */
+.blog-main {
+	margin-top: 20px;
+}
+
+.blog-sidebar {
+	margin-top: 20px;
+}
+
+/* 博客文章 */
 ul.posts {
 	list-style-type: none;
 	padding: 0px;
@@ -102,6 +112,37 @@ div.pagination {
 	padding: 0px;
 	width: 100%;
 	text-align: left;
+}
+
+/* 搜索框 */
+#searchBox {
+	width: 258px;
+	height: 50px;
+	background: #fff;
+	border: 1px solid #dedede;
+	float: left;
+	overflow: hidden;
+	clear: both;
+}
+#searchInput {
+	float: left;
+	width: 193px;
+	font-size: 14px;
+	font-family: Arial;
+	color: #868686;
+	margin-left: 10px;
+	margin-top: 10px;
+	padding: 5px 5px;
+	border: 1px solid #e7e7e7;
+}
+#searchSubmit {
+	cursor: pointer;
+	float: left;
+	height: 25px;
+	width: 27px;
+	margin-top: 18px;
+	margin-left: 10px;
+	font-size: 14px;
 }
 
 

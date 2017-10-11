@@ -1,49 +1,7 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 {% from 'include/_macros.html' import pagination_widget %}
 
 {% block title %}首页{% endblock %}
-
-{% block styles %}
-	{{ super() }}
-	<style>
-		.blog-main {
-			margin-top: 20px;
-		}
-		.blog-sidebar {
-			margin-top: 20px;
-		}
-		#searchBox {
-			width: 258px;
-			height: 50px;
-			background: #fff;
-			border: 1px solid #dedede;
-			float: left;
-			overflow: hidden;
-			clear: both;
-		}
-		#searchInput {
-			float: left;
-			width: 193px;
-			font-size: 14px;
-			font-family: Arial;
-			color: #868686;
-			margin-left: 10px;
-			margin-top: 10px;
-			padding: 5px 5px;
-			border: 1px solid #e7e7e7;
-		}
-		#searchSubmit {
-			cursor: pointer;
-			float: left;
-			height: 25px;
-			width: 27px;
-			margin-top: 18px;
-			margin-left: 10px;
-			font-size: 14px;
-		}
-	</style>
-{% endblock %}
 
 <!-- 重写页面内容 -->
 {% block page_content %}
@@ -62,13 +20,8 @@
 	</div><!-- blog-main-->
 
 	<div class="col-sm-3 blog-sidebar">
-		<!-- 搜索栏 -->
-		<div id="searchBox">
-			<form id="searchForm" action="/search-post" method="post">
-				<input name="keyword" type="text" id="searchInput" value="搜一下，说easy!" onfocus="if(this.value=='搜一下，说easy!'){this.value=''};" onblur="if(this.value==''){this.value='搜一下，说easy!'};">
-				<span id="searchSubmit" class="glyphicon glyphicon-search"></span></input>
-			</form>	
-		</div>
+		<!-- 查询搜索 -->
+		{% include 'include/_search.html' %}
 	</div><!--blog-sidebar-->
 </div><!--row-->
 </div><!--container-->

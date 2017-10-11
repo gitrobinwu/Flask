@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from 'include/_macros.html' import pagination_widget %}
+
+{% block title %}{{ query }} - 搜索结果{% endblock %}
+
+{% block page_content %}
+<div class="container">
+<div class="row">
+	<div class="col-sm-9 blog-main">
+		<!-- 博客文章列表 -->
+		{% include 'include/_posts.html' %}
+
+		<!-- 显示分页链接 -->
+		{% if not onepost and pagination %}	
+			<div class="pagination">
+			{{ pagination_widget(pagination,'.search_results',keyword=query) }}
+			</div>
+		{% endif %}
+	</div>
+
+	<div class="col-sm-3 blog-sidebar">
+	</div>
+</div>
+</div>
+{% endblock %}
+
+

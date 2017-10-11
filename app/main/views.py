@@ -6,9 +6,11 @@ from .. import db
 from ..models import User,Role,Permission,Post 
 from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm
 from ..decorators import admin_required 
+from sqlalchemy import or_
+from sqlalchemy import and_
 
 # 首页-->处理博客文章
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET'])
 def index():
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
@@ -154,13 +156,31 @@ def edit(id):
 	form.ckhtml.data = post.content 
 	return render_template('edit_post.html',post=post,form=form)
 
-
-# 根据提供的关键字搜索博客
-@main.route('/search-post',methods=['GET','POST'])
-def search_post():
+# 搜索视图函数
+@main.route('/search',methods=['GET','POST'])
+def search():
+	# 获取查询关键字，之所以重定向，防止用户刷新表单重复提交
 	if request.method == 'POST':
-		keyword = request.form['keyword']
-		page = request.args.get('page',1,type=int)
-		pagination = Post.query.filter_by()
+		return redirect(url_for('.search_results',keyword=request.form['keyword']))		
+	return redirect(url_for('.index'))
+
+# 搜索结果页
+@main.route('/search_results/<keyword>')
+def search_results(keyword):
+	# 查询标题或者内容包含查询关键字的文章
+	print '-'*30+keyword+'-'*30
+	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
+	pagination = db.session.query(Post).\
+			  filter(or_(Post.title.like('%%%s%%' % keyword),Post.content.like('%%%s%%' % keyword))).\
+			  order_by(Post.create_time.desc()).paginate(
+				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+				error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+	
+	# 返回当前分页记录
+	posts = pagination.items
+	# 列表形式显示文章-->只显示摘要
+	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
+							pagination=pagination)
+
 
 
