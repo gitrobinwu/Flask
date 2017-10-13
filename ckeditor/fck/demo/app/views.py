@@ -7,7 +7,8 @@ from .forms import CKEditorForm
 def index():
 	form = CKEditorForm()
 	if form.validate_on_submit():
-		print request.form['ckdemo']
+		#print request.form['ckdemo']
+		print form.ckdemo.data
 		return redirect(url_for('.index'))
 	return render_template('index.html',form=form)
 

@@ -11,6 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DETABASE_URI') or \
 		'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改并且发送信号。这需要额外的内存， 如果不必要的可以禁用它
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+# 将其设置为True时，每次请求结束后自动提交数据库的变动
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True 
 db = SQLAlchemy(app)
 
@@ -102,15 +103,5 @@ if __name__ == '__main__':
 	# 查看文章的所属分类
 	print p1.category
 	app.run(host='0.0.0.0',port=5012)
-
-
-
-
-
-
-
-
-
-
 
 
