@@ -1,16 +1,17 @@
 <!-- 渲染表单字段，如果存在验证错误，则列出来 -->
 <!-- render_field(form.username,class="username")-->
 {% macro render_field(field) %}
-	<dt>{{ field.label }}
-	<dd>{{ field(**kwargs) }}
-	{% if field.errors %}
-		<ul>
+	<div class="form-group">
+		{{ field.label() }}
+		{{ field(class="form-control", **kwargs) }}
+		{% if field.errors %}
+		<ul style="list-style-type: none; padding: 0px; margin-top: 5px;">
 			{% for error in field.errors %}
-				<li>{{ error }}</li>
+				<li style="color: red;">{{ error }}</li>
 			{% endfor %}
 		</ul>
-	{% endif %}
-	</dd>
+		{% endif %}
+	</div>
 {% endmacro %}
 
 

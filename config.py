@@ -2,7 +2,6 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-
 class Config:
 	# 应用密匙
 	SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
@@ -23,6 +22,9 @@ class Config:
 	
 	# 默认每页显示的记录数量
 	FLASKY_POSTS_PER_PAGE = 10
+	
+	# 全文搜索数据库的名称
+	WHOOSH_BASE = os.path.join(basedir, 'search.db')
 
 	@staticmethod
 	def init_app(app):

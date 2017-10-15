@@ -67,7 +67,14 @@ class CKEditorPostForm(FlaskForm,CKEditor):
 	title = StringField(label=u'标题',validators=[DataRequired()])
 	# 非必须
 	summary = TextAreaField(label=u'摘要')
+	category = SelectField(label=u'分类') 
+	tag = SelectField(label=u'标签')
 	ckhtml = TextAreaField(label=u'内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')	
+	
+	def __init__(self,*args,**kwargs):
+		super(CKEditorPostForm,self).__init__(*args,**kwargs)
+		self.category.choices = list()
+		self.tag.choices = list()
 
 

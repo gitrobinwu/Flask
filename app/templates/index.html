@@ -7,7 +7,7 @@
 {% block page_content %}
 <div class="container">
 <div class="row">
-	<div class="col-sm-9 blog-main">
+	<div class="col-xs-9 col-sm-9 col-md-9 blog-main">
 		<!-- 博客文章列表 -->
 		{% include 'include/_posts.html' %}
 
@@ -19,18 +19,11 @@
 		{% endif %}
 	</div><!-- blog-main-->
 
-	<div class="col-sm-3 blog-sidebar">
-		<!-- 查询搜索 -->
-		{% include 'include/_search.html' %}
+	<div class="col-xs-3 col-sm-3 col-md-3 blog-sidebar">
+		{% include 'include/_sidebar.html' %}
 	</div><!--blog-sidebar-->
 </div><!--row-->
 </div><!--container-->
-{% endblock %}
-
-<!-- 根据博客具体内容长度，动态决定是否隐藏超出内容 -->
-{% block scripts %}
-{{ super() }}
-<script type="text/javascript" src="{{ url_for('static', filename='js/blog.js') }}"></script>
 {% endblock %}
 
 

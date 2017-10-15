@@ -7,6 +7,10 @@
 <div class="container">
 <div class="row">
 	<div class="col-sm-9 blog-main">
+		<div id="searchPlace">
+			<span>搜索：<strong>{{ query }}</strong>&nbsp;的结果</span>
+		</div>
+
 		<!-- 博客文章列表 -->
 		{% include 'include/_posts.html' %}
 
@@ -18,10 +22,83 @@
 		{% endif %}
 	</div>
 
+	<!-- 显示右边栏 -->
 	<div class="col-sm-3 blog-sidebar">
+		{% include 'include/_sidebar.html' %}
 	</div>
 </div>
 </div>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+	#searchPlace {
+		width: 670px;
+		margin: 10px 0px;
+	}
+
+	.highlight {
+		border-radius: 5px;
+		background-color: #fff34d;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+		padding: 1px 4px;
+		margin: 0 4px;
+	}
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/search_blogs.js') }}"></script>
+<script>
+/*文档就绪事件*/
+$(document).ready(function(){
+	//查询关键词,并高亮显示
+	var keyword = "{{ query }}";
+	console.log('---------关键词：' + keyword + '------------');
+
+	var terms = new Array();//关键字数组
+	if(keyword.indexOf(' ')>0){
+		terms = keyword.split(' ');
+	}else if(keyword.indexOf(',')){
+		terms = keyword.split(',');
+	}else {
+		terms = [keyword];
+	}
+
+	//剔除数组中的空值或特殊值 
+	for(var i=0; i<terms.length; i++){
+		if(terms[i]=="" || terms[i]=="OR" || typeof(terms[i])=="undefined"){
+			console.log("terms[] === "+i+"&&&"+terms[i]);
+			terms.splice(i,1);
+			i = i -1;
+		}else{
+			console.log("terms[] === "+i+"###"+terms[i]);
+		}
+	}
+
+	var words = terms;
+	console.log("words =============================== "+words);
+
+	//搜索结果记录为空
+	if({{ pagination.total }} == 0){
+		console.log('搜索结果为空');
+		var searchNull = [
+			'<div class="well well-sm">',
+			'<span>搜索：<strong>{{ query }}</strong>&nbsp;的结果</span>',
+			'</div>',
+			'<div class="well well-lg" style="font-size: 25px; margin: 20px 0px;">',
+			'<span>很抱歉，没有找到任何内容</span>',
+			'</div>'
+		].join('');
+		$('.blog-main').html(searchNull);
+	}else {
+		//在搜索结果记录中高亮关键词
+		$('.posts').html(highlight($('.posts').html(),words));
+	}
+});
+</script>
 {% endblock %}
 
 

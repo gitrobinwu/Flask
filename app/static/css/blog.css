@@ -14,7 +14,6 @@ ul.posts {
 }
 .listBox {
 	margin-bottom: 20px;
-	border: 1px solid #E7E7E8;
 	background: #fff;
 	overflow: hidden;
 	padding: 15px;
@@ -108,7 +107,7 @@ span.timeAuthor small {
 }
 /*尾部分页*/
 div.pagination {
-	margin: 0px;
+	margin: 15px auto;
 	padding: 0px;
 	width: 100%;
 	text-align: left;

@@ -7,6 +7,7 @@ from flask_login import UserMixin,AnonymousUserMixin
 from . import db,login_manager 
 from lxml import html
 import re
+from jieba.analyse.analyzer import ChineseAnalyzer
 
 # 按字节位定义权限常量,表示某操作权限
 class Permission:
@@ -202,6 +203,9 @@ class User(UserMixin,db.Model):
 	def __repr__(self):
 		return '<User %r>' % self.username
 
+	def __unicode__(self):
+		return self.username 
+
 # 匿名用户		
 class AnonymousUser(AnonymousUserMixin):
 	def can(self,permissions):
@@ -219,15 +223,59 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
 	return User.query.get(int(user_id))
 
+# 分类		
+class Category(db.Model):
+	__tablename__ = 'categorys'
+
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String(64),unique=True)
+	
+	def __repr__(self):
+		return '<Category %r>' % self.name
+
+	def __unicode__(self):
+		return self.name 
+		
+# 标签
+class Tag(db.Model):
+	__tablename__ = 'tags'
+
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String(64),unique=True)
+
+	def __repr__(self):
+		return '<Tag %r>' % self.name
+	
+	def __unicode__(self):
+		return self.name 
+
+# 标签和文章的关联表		
+PostTag = db.Table('posts_tags',
+	db.Column('tag_id',db.Integer,db.ForeignKey('tags.id')),
+	db.Column('post_id',db.Integer,db.ForeignKey('posts.id'))
+)
+
 # 文章模型	
 class Post(db.Model):
 	__tablename__ = 'posts'
+	__searchable__ = ['title','content']
+	__analyzer__ = ChineseAnalyzer() 
+
 	id = db.Column(db.Integer,primary_key=True)
 	title = db.Column(db.String(64)) # 标题
 	content = db.Column(db.Text) # 内容
 	fragment = db.Column(db.Text) # 内容片段，用于主页显示 
 	create_time = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
+
+	# 建立分类到文章的一对多关系
+	category_id = db.Column(db.Integer, db.ForeignKey('categorys.id'))
+	category = db.relationship('Category',backref=db.backref('posts', lazy='dynamic'))
+
+	# 建立标签到文章的多对多关系
+	tags = db.relationship('Tag',
+			secondary=PostTag,
+			backref=db.backref('posts', lazy='dynamic'),lazy='dynamic')
 
 	def __repr__(self):
 		return '<Post %r>' % self.title

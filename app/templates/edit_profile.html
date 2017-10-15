@@ -4,12 +4,8 @@
 {% block title %}编辑个人信息{% endblock %}
 
 {% block styles %}
-	{{ super() }}
-	<style>
-		.test {
-			margin: 20px 20px;
-		}
-	</style>
+{{ super() }}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.5/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block page_content %}
@@ -32,10 +28,25 @@
 
 {% block scripts %}
 {{ super() }}
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.5/js/plugins/piexif.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.5/js/plugins/sortable.min.js" type="text/javascript"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.5/js/fileinput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.5/js/locales/zh.js"></script>
 <script>
 	/*文档就绪事件*/
 	$(document).ready(function(){
+		//调整自我介绍的初始化行数
 		$('#about_me').attr('rows','5');
+		var projectfileoptions = {
+			showUpload : false,
+			showRemove : false,
+			language : 'zh',
+			allowedPreviewTypes : [ 'image' ],
+			allowedFileExtensions : [ 'jpg', 'png', 'gif' ],
+			maxFileSize : 2000,
+		};
+		//bootstrap 文件上传
+		$("#avatar").fileinput(projectfileoptions);
 	});
 </script>
 {% endblock %}

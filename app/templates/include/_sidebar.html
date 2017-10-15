@@ -1,0 +1,9 @@
+<!-- 搜索栏 -->
+<div id="searchBox">
+	<form id="searchForm" action="{{ url_for('.search') }}" method="post">
+		<input name="keyword" type="text" id="searchInput" value="搜一下，说easy!" onfocus="if(this.value=='搜一下，说easy!'){this.value=''};" onblur="if(this.value==''){this.value='搜一下，说easy!'};"></input>
+		<span id="searchSubmit" class="glyphicon glyphicon-search"></span>
+	</form>	
+</div>
+
+

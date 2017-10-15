@@ -21,7 +21,8 @@ class RegisterForm(FlaskForm):
 			EqualTo('password2',message=u'密码必须相同')])
 	password2 = PasswordField(label=u'确认密码',validators=[DataRequired()])
 	submit = SubmitField(label=u'马上注册')
-	
+
+	# 跟数据库保存一致 
 	def validate_email(self,field):
 		if User.query.filter_by(email=field.data).first():
 			raise ValidationError(u'该邮箱已经被注册.')

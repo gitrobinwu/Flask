@@ -23,13 +23,31 @@ def index():
 	# 非全文查看状态
 	return render_template('index.html',onepost=False,posts=posts,
 							pagination=pagination)
+
+'''
+title =  test 
+summary =  wo de ce shi 
+category =  0
+tag =  [u'1', u'2']
+ckhtml =  333333333333333sadsadsa<br />
+sdadsadsa
+'''
 # 写博客
+# 添加标签和分类
 @main.route('/write-post',methods=['GET','POST'])
+@login_required 
 def write_post():
 	form = CKEditorPostForm()	
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
-		form.validate_on_submit():
+		request.method=="POST":
+		print '-'*60
+		print 'title = ',request.values.get('title')
+		print 'summary = ',request.values.get('summary')
+		print 'category = ',request.values.get('category')
+		print 'tag = ',request.values.getlist('tag')
+		print 'ckhtml = ',request.values.get('ckhtml')
+		print '-'*60
 		# 摘要不是必须的；如果用户没有输入摘要，那么就截取正文的前200个字符给摘要字段
 		if form.summary.data:
 			fragment = form.summary.data 
@@ -149,10 +167,15 @@ def edit(id):
 	if form.validate_on_submit():
 		post.title= form.title.data 
 		post.content = form.ckhtml.data
+		if form.summary.data:
+			post.fragment = form.summary.data +' ...'
+		else:
+			post.fragment = Post.gen_fragment(form.ckhtml.data)+' ...'
 		db.session.add(post)
 		flash(u'文章已经被更新')
 		return redirect(url_for('.post', id=post.id))
 	form.title.data = post.title
+	form.summary.data = post.fragment
 	form.ckhtml.data = post.content 
 	return render_template('edit_post.html',post=post,form=form)
 
@@ -168,13 +191,14 @@ def search():
 @main.route('/search_results/<keyword>')
 def search_results(keyword):
 	# 查询标题或者内容包含查询关键字的文章
-	print '-'*30+keyword+'-'*30
+	print '-'*30+'results of '+keyword+'-'*30
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
-	pagination = db.session.query(Post).\
-			  filter(or_(Post.title.like('%%%s%%' % keyword),Post.content.like('%%%s%%' % keyword))).\
-			  order_by(Post.create_time.desc()).paginate(
-				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-				error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+
+	pagination = Post.query.\
+				 whoosh_search(keyword).\
+				 order_by(Post.create_time.desc()).paginate(
+						 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+						 error_out=False)
 	
 	# 返回当前分页记录
 	posts = pagination.items
@@ -182,5 +206,13 @@ def search_results(keyword):
 	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
 							pagination=pagination)
 
+
+# 添加分类
+@main.route('/new_category',methods=['GET','POST'])
+def new_category():
+	print '*********************************'
+	if request.method=="POST":
+		print 'new category = ',request.values.get('category')
+		return redirect(url_for('.write_post'))
 
 

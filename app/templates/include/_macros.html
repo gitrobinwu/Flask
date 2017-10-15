@@ -1,6 +1,13 @@
 <!-- endpoint 生成分页链接的端点 -->
 {% macro pagination_widget(pagination,endpoint) %}
-<ul class="pagination">
+<!-- 显示分页信息  -->
+<div style="display: inline-block;float: left;line-height: 36px;">
+	<span>共找到{{ pagination.total }}条记录/最大显示{{ pagination.pages }}页</span>
+</div>
+
+<!-- 如果只有一页，不显示分页链接 -->
+{% if pagination.pages != 1 and pagination.total %}
+<ul class="pagination" style="float: right;margin: 0px auto;">
 	<!-- 有上一页显示上一页，否则显示禁止链接  -->
 	<li {% if not pagination.has_prev %} class="disabled" {% endif %}>
 		<!-- 向endpoint 传递关键字查询字符串参数 -->
@@ -35,11 +42,8 @@
 		</a>
 	</li>
 
-	<!-- 共多少页多少条 -->
-	<li>
-		<span>共{{ pagination.pages }}页{{ pagination.total }}条</span>
-	</li>
 </ul>
+{% endif %}
 {% endmacro %}
 
 

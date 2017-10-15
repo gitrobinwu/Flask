@@ -1,0 +1,43 @@
+
+{% block scripts %}
+{{ super() }}
+<script>
+	/* 高亮查询关键字
+	function highlight(text,words,tag){
+		//默认的标签,如果没有指定，使用span
+		tag = tag || 'span';
+		var i,len = words.length,re;
+		for(i=0; i<len; i++){
+			//正则匹配所有文本
+			re = new RegExp(words[i],'g');	
+			if(re.test(text)){
+				text = text.replace(re,'<'+ tag +' class="highlight">$&</'+ tag +'>');
+			}
+		}
+		return text;
+	}
+
+	//取消高亮
+	function unhighlight(text,tag){
+		tag = tag || 'span';
+		var re = new RegExp('(<'+ tag +'.+?>|<\/'+ tag +'>)', 'g');
+		return text.replace(re,'');
+	}*/
+
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		console.log('1111111111111111111111111111111');
+		//var words = ["{{ query }}"];
+		console.log('11111111111+ ''{{ query }}'+'*********');
+		//$('.posts').html(unhighlight($('.posts').html()));
+		//$('.posts').html(highlight($('.posts').html(),words,'strong'));
+	});
+</script>
+{% endblock %}
+
+
+						<!-- 添加分类 -->
+						<a data-toggle="modal" href="#categoryModal">
+							<span>添加分类</span>
+						</a>
+						{% include 'include/category_modal.html' %}
