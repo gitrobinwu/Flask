@@ -10,29 +10,50 @@
 {% endblock %}
 
 {% block page_content %}
-	<div class="container">
+	<div class="container" style="margin-bottom: 30px;">
 		<!-- 博客提交表单 -->
 		<!-- 检测当前用户是否有写权限 -->
 		{% if current_user.can(Permission.WRITE_ARTICLES) %}
 		<div class="row">
 			<!-- 通过列偏移居中 -->
 			<div class="col-md-10 col-md-offset-1">
-				<form action="{{ url_for('.write_post') }}" method="post">
+				<form id="post_edit" name="post_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
 					{{ form.csfr_token }}
 					{{ render_field(form.title, class="form-control") }}
 					{{ render_field(form.summary, class="form-control") }}
-					<div class="form-group">
-						{{ form.category.label(style="margin-right: 10px;") }}
-						{{ form.category(class="form-control", style="width: 45%;") }}
+					<div class="clearfix" style="width: 50%;">
+						<div class="form-group" style="float: left; ">
+							{{ form.category.label(style="margin-right: 10px;") }}
+							{{ form.category(class="form-control", style="width: 300px;") }}
+						</div>
+						
+						<!-- 添加分类 -->
+						<div style="display: inline-block; float: left; margin: 3px 10px;">
+							<a data-toggle="modal" href="#categoryModal">
+								<span>添加分类</span>
+							</a>
+							{% include 'include/_category_modal.html' %}
+						</div>
 					</div>
-					<div class="form-group">
-						{{ form.tag.label(style="margin-right: 10px;") }}
-						{{ form.tag(class="form-control", style="width: 45%;") }}
-					</div>
+			
+					<div class="clearfix" style="width: 60%;">
+						<div class="form-group" style="float: left;">
+							{{ form.tag.label(style="margin-right: 10px;") }}
+							{{ form.tag(class="form-control", style="width: 400px;") }}
+						</div>
+
+						<!-- 添加标签 -->
+						<div style="display: inline-block; float: left; margin: 6px 10px;">
+							<a data-toggle="modal" href="#tagModal">
+								<span>添加标签</span>	
+							</a>
+							{% include 'include/_tag_modal.html' %}
+						</div>
+					</div>	
 					{{ render_field(form.ckhtml, class="form-control") }}
-					{{ form.submit(class="btn btn-primary",value="发表") }}
 				</form>
-				<!--{{ wtf.quick_form(form) }}-->
+				<button type="button" id="submit_edit_post" class="btn btn-primary btn-sm" onclick="return false;">发表</button>
+				<button style="margin-left: 10px;" type="button" id="cancel_edit_post" class="btn btn-default btn-sm">取消</button>
 			</div>
 		</div>
 		{% endif %}
@@ -47,27 +68,175 @@
 <script type="text/javascript" src="{{ url_for('static', filename='select2-4.0.4/dist/js/select2.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='select2-4.0.4/dist/js/i18n/zh-CN.js') }}"></script>
 <script type="text/javascript">
+	//字符串格式化输出
+	String.prototype.format = function(args) {
+		var result = this.split("").join(""),
+		reg = /\{\d*\}/g;
+		res = reg.exec(result);
+		if(res) {
+			for(var i = 0; i < args.length; i++) {
+				result = result.replace(eval('/\\{' + i + '\\}/g'), arguments[i]);
+			}
+		}
+
+		return result;
+	}
+
 	/*文档就绪事件*/
 	$(document).ready(function(){
-		var data = [{ id: 0, text: 'aaa' }, { id: 1, text: 'bbb' }, { id: 2, text: 'ccc' }];
 		$('#category').select2({
-				data: data,
 				placeholder: "请选择",
-				//multiple: true, //设置多选
 				allowClear:true,//允许清除选项
 				language: "zh-CN",//汉化
 		});
+		$("#category").val(null).trigger("change");//清空
+
 		$('#tag').select2({
-			data: data,
 			placeholder: "请选择",
 			multiple: true, //设置多选
 			allowClear:true,//允许清除选项
 			language: "zh-CN",//汉化
 		});
-		console.log("121121321231321321321321321");
-		console.log("121121321231321321321321321");
-		console.log("121121321231321321321321321");
-		console.log("121121321231321321321321321");
+		$("#tag").val(null).trigger("change");//清空
+
+		console.log("------------------------------------");
+		console.log($('#category').children().length);
+
+		//取消发表
+		$('#cancel_edit_post').click(function(){
+			console.log('------------------ cancel_edit_post -----------------');
+			window.location.href='/write-post';//跳转到写的文章的页面
+			console.log('------------------ cancel_edit_post -----------------');
+		});
+
+		//发表博客
+		$('#submit_edit_post').click(function(){
+			console.log('----------------- submit_edit_post -------------------');
+			var title = $('#title').val();//必选
+			var summary = $('#summary').val();//可选
+			var ckhtml = CKEDITOR.instances.ckhtml.getData();//必选
+
+			//验证表单提交
+			if(!title){
+				alert("必须填写博客标题");
+				$('#title').focus();//获取焦点 
+				return;
+			}else if(!$('#category').select2("data").length){
+				alert("请选择博客分类");
+				$('#category').focus();
+				return;
+			} else if(!ckhtml){
+				alert("必须填写博客内容");
+				$('ckhtml').focus();
+				return;
+			}
+
+			var category_text = $('#category').select2("data")[0].text;//分类必选
+			var tag_text = new Array();
+			var res = $("#tag").select2("data");//标签可选
+			for(var i=0;i<res.length;i++){
+				console.log(res[i].text);
+				tag_text.push(res[i].text);
+			}	
+			var form_data = {"title": title, "summary": summary, "category": category_text, "tag": tag_text.join(','), "ckhtml": ckhtml};
+			console.log(form_data);
+
+			$.ajax({
+				url: "/write-post",
+				type: "post",
+				data: form_data,
+				success: function(data){
+					console.log("This is OK ---------------------");
+					console.log(data.id);
+					window.location.href='/post/'+data.id;//跳转到已提交的文章的页面
+					console.log("This is OK ---------------------");
+				},
+				error: function(err){
+					console.log('this is error -----------------');
+					console.log(err);
+					console.log('this is error ----------------');
+				}
+			});
+			console.log('----------------- submit_edit_post -------------------');
+		});
+		
+		//添加分类
+		$('#submit_edit_category').click(function(){
+			var category_name = $('#category_name').val();
+			
+			//验证分类名称是否为空
+			if(!category_name){
+				alert("请输入分类名称");
+				$('#category_name').focus();//重新获取焦点
+				return;
+			}
+			
+			var form_data = {"category_name": category_name};
+
+			console.log('***************************************');
+			console.log(category_name)
+			console.log(form_data);
+			console.log('***************************************');
+
+			//ajax方式提交表单数据
+			$.ajax({
+				url: "/new_category",
+				type: "post",
+				data: form_data,
+				success: function(data){
+					console.log("This is OK ---------------------");
+					console.log(data.id);
+					$('#categoryModal').modal('hide');//隐藏模态框
+					//添加分类
+					$("#category").append(new Option(data.name,data.id,false, true));
+					//window.location.href='{{ url_for('main.write_post') }}';
+					console.log("This is OK ---------------------");
+				},
+				error: function(err){
+					console.log('this is error -----------------');
+					console.log(err);
+					console.log('this is error ----------------');
+				}
+			});
+		});
+		
+		//添加标签
+		$('#submit_edit_tag').click(function(){
+			var tag_name = $('#tag_name').val();
+			
+			//验证分类名称是否为空
+			if(!tag_name){
+				alert("请输入标签名称");
+				$('#tag_name').focus();//重新获取焦点
+				return;
+			}
+			
+			var form_data = {"tag_name": tag_name};
+
+			console.log('***************************************');
+			console.log(tag_name)
+			console.log(form_data);
+			console.log('***************************************');
+			//ajax方式提交表单数据
+			$.ajax({
+				url: "/new_tag",
+				type: "post",
+				data: form_data,
+				success: function(data){
+					console.log("This is OK ---------------------");
+					console.log(data.id);
+					$('#tagModal').modal('hide');//隐藏模态框
+					//添加分类
+					$("#tag").append(new Option(data.name,data.id,false, true));
+					console.log("This is OK ---------------------");
+				},
+				error: function(err){
+					console.log('this is error -----------------');
+					console.log(err);
+					console.log('this is error ----------------');
+				}
+			});
+		});
 	});
 </script>
 {% endblock %}

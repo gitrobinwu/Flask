@@ -1,10 +1,11 @@
 #-*- coding:utf-8 -*- 
 from flask import render_template,redirect, url_for,flash,current_app,request,abort
+from flask import jsonify
 from flask_login import login_required,current_user 
 from . import main
 from .. import db
-from ..models import User,Role,Permission,Post 
-from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm
+from ..models import User,Role,Permission,Post,Category,Tag
+from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm,CategoryFrom,TagForm
 from ..decorators import admin_required 
 from sqlalchemy import or_
 from sqlalchemy import and_
@@ -24,19 +25,14 @@ def index():
 	return render_template('index.html',onepost=False,posts=posts,
 							pagination=pagination)
 
-'''
-title =  test 
-summary =  wo de ce shi 
-category =  0
-tag =  [u'1', u'2']
-ckhtml =  333333333333333sadsadsa<br />
-sdadsadsa
-'''
 # 写博客
 # 添加标签和分类
 @main.route('/write-post',methods=['GET','POST'])
 @login_required 
 def write_post():
+	category_form = CategoryFrom()
+	tag_form = TagForm()
+
 	form = CKEditorPostForm()	
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
@@ -53,11 +49,36 @@ def write_post():
 			fragment = form.summary.data 
 		else:
 			fragment = Post.gen_fragment(form.ckhtml.data)
-		post = Post(title=form.title.data,content=form.ckhtml.data,fragment=fragment+' ...',
-				author=current_user._get_current_object())
+		'''
+		title =  dsd
+		summary =  
+		category =  Python
+		tag =  [u'Python,numpy,scipy,flask']
+		ckhtml =  dsads
+		'''
+		# 分类(必选)
+		category = Category.query.filter_by(name=request.values.get('category')).first()
+
+		# 标签(可选)
+		tag = request.values.getlist('tag')[0].encode('utf-8')
+		print category,tag
+		if tag:
+			tags = list()
+			for tag_name in tag.split(','):
+				tag_obj = Tag.query.filter_by(name=tag_name).first()
+				if tag_obj not in tags:
+					tags.append(tag_obj)		
+			post = Post(title=form.title.data,content=form.ckhtml.data,fragment=fragment+' ...',
+				author=current_user._get_current_object(),category=category,tags=tags)
+		else:
+			post = Post(title=form.title.data,content=form.ckhtml.data,fragment=fragment+' ...',
+				author=current_user._get_current_object(),category=category,tags=[])
+
 		db.session.add(post)
-		return redirect(url_for('main.index'))
-	return render_template('write_post.html',form=form)	
+		db.session.commit()
+		return jsonify(id=post.get_id())
+
+	return render_template('write_post.html',form=form,category_form=category_form,tag_form=tag_form)	
 
 # 上传文件或者图片
 @main.route('/ckupload/',methods=['GET','POST'])
@@ -153,6 +174,12 @@ def post(id):
 	# 全文查看状态
 	return render_template('post.html',onepost=True,post=post,posts=[post])
 
+@main.route('/get_post/<title>')
+def get_post(title):
+	post = Post.query.filter_by(title=title).first_or_404()
+	# 全文查看状态
+	return render_template('post.html',onepost=True,post=post,posts=[post])
+
 
 # 编辑文章
 @main.route('/edit/<int:id>',methods=['GET','POST'])
@@ -164,20 +191,52 @@ def edit(id):
 			not current_user.can(Permission.ADMINISTER):
 		abort(403)
 	form = CKEditorPostForm()
-	if form.validate_on_submit():
+	#if form.validate_on_submit():
+	if request.method=="POST":
 		post.title= form.title.data 
 		post.content = form.ckhtml.data
+		print "In edit-post category = ",request.values.get('category')
+		print "In edit-post tags = ",request.values.getlist('tag')
+		'''
+		In edit-post category =  3
+		In edit-post tags =  [u'4', u'5']
+		'''
+		# 更新摘要
 		if form.summary.data:
 			post.fragment = form.summary.data +' ...'
 		else:
 			post.fragment = Post.gen_fragment(form.ckhtml.data)+' ...'
+		
+		# 更新标签列表	
+		ids = request.values.getlist('tag')
+		if ids:
+			tags = list()
+			for id in ids:
+				id = int(id.encode('utf-8'))
+				tag_obj = Tag.query.get(id) 
+				if tag_obj not in tags:
+					tags.append(tag_obj)
+			post.tags = tags		
+		else:
+			# 清空标签
+			post.tags = []
+
+		# 更新类别
+		category_id = request.values.get('category')
+		post.category = Category.query.get(category_id)
+
 		db.session.add(post)
 		flash(u'文章已经被更新')
 		return redirect(url_for('.post', id=post.id))
 	form.title.data = post.title
 	form.summary.data = post.fragment
 	form.ckhtml.data = post.content 
-	return render_template('edit_post.html',post=post,form=form)
+	category = post.category
+	tag_ids = list()
+	for tag in post.tags:
+		if tag.id not in tag_ids: 
+			tag_ids.append(str(tag.id))
+	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids))
 
 # 搜索视图函数
 @main.route('/search',methods=['GET','POST'])
@@ -209,10 +268,28 @@ def search_results(keyword):
 
 # 添加分类
 @main.route('/new_category',methods=['GET','POST'])
+@login_required
 def new_category():
-	print '*********************************'
 	if request.method=="POST":
-		print 'new category = ',request.values.get('category')
-		return redirect(url_for('.write_post'))
+		print 'category_name = ',request.values.get('category_name')
+		# 新建分类
+		category = Category(name=request.values.get('category_name'))
+		db.session.add(category)
+		db.session.commit()
+		return jsonify(id=category.get_id(),name=category.get_name())
+	return redirect(url_for('.write_post'))
+
+# 添加标签
+@main.route('/new_tag',methods=['GET','POST'])
+@login_required
+def new_tag():
+	if request.method=="POST":
+		print 'tag_name = ',request.values.get('tag_name')
+		# 新建标签
+		tag = Tag(name=request.values.get('tag_name'))
+		db.session.add(tag)
+		db.session.commit()
+		return jsonify(id=tag.get_id(),name=tag.get_name())
+	return redirect(url_for('.write_post'))
 
 

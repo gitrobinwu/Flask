@@ -4,7 +4,7 @@ from wtforms import StringField,TextAreaField,SubmitField,BooleanField,SelectFie
 from flask_wtf.file import FileField,FileAllowed, FileRequired
 from wtforms.validators import Length,DataRequired,Email,Regexp  
 from wtforms import ValidationError
-from ..models import Role,User,Post
+from ..models import Role,User,Post,Category,Tag
 from flaskckeditor import CKEditor
 
 # 普通用户资料表单,所有字段是可选的
@@ -62,6 +62,14 @@ class PostForm(FlaskForm):
 	body = TextAreaField(label=u'博客内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')
 
+# 分类	
+class CategoryFrom(FlaskForm):
+	category_name = StringField(label=u"分类名称",validators=[DataRequired(),Length(1,64)])
+
+# 标签	
+class TagForm(FlaskForm):
+	tag_name = StringField(label=u"标签名称",validators=[DataRequired(),Length(1,64)])
+
 # 博客文章表单
 class CKEditorPostForm(FlaskForm,CKEditor):
 	title = StringField(label=u'标题',validators=[DataRequired()])
@@ -74,7 +82,11 @@ class CKEditorPostForm(FlaskForm,CKEditor):
 	
 	def __init__(self,*args,**kwargs):
 		super(CKEditorPostForm,self).__init__(*args,**kwargs)
-		self.category.choices = list()
-		self.tag.choices = list()
+		# 从分类模型中加载初始选项
+		self.category.choices = [ (category.id,category.name)
+							 for category in Category.query.order_by(Category.id.asc()).all() ]
+		self.tag.choices = [ (tag.id,tag.name)
+							 for tag in Tag.query.order_by(Tag.id.asc()).all() ]
 
 
+	

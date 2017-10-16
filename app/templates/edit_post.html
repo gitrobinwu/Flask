@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% from 'include/_formhelpers.html' import render_field %}
 
-{% block title %}编辑博客{% endblock %}
+{% block title %}编辑 - {{ post.title }} {% endblock %}
 
 {% block styles %}
 {{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='select2-4.0.4/dist/css/select2.min.css') }}">
 <style>
 	.edit-bottom {
 		margin-bottom: 60px;
@@ -30,8 +32,23 @@
 	<!-- 文章作者或者管理员可以编辑 -->
 	{% if current_user == post.author or current_user.can(Permission.ADMINISTER) %}			
 	<div class="row">	
-		<div class="edit-main">
-			{{ wtf.quick_form(form) }}
+		<div class="col-md-10 col-md-offset-1">
+			<form action="{{ url_for('.edit',id=post.id) }}" method="post" id="post_edit" name="post_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
+				{{ form.csfr_token }}
+				{{ render_field(form.title, class="form-control") }}
+				{{ render_field(form.summary, class="form-control") }}
+				<div class="form-group">
+					{{ form.category.label(style="margin-right: 10px;") }}
+					{{ form.category(class="form-control", style="width: 300px;") }}
+				</div>
+				<div class="form-group">
+					{{ form.tag.label(style="margin-right: 10px;") }}
+					{{ form.tag(class="form-control", style="width: 400px;") }}
+				</div>
+				{{ render_field(form.ckhtml, class="form-control") }}
+			</form>
+			<button type="button" id="submit_edit_post" class="btn btn-primary btn-sm" onclick="return false;">保存</button>
+			<button style="margin-left: 10px;" type="button" id="cancel_edit_post" class="btn btn-default btn-sm">取消</button>
 		<div>	
 	</div>
 	{% endif %}
@@ -42,6 +59,64 @@
 {{ super() }}
 <script type="text/javascript" src="{{ url_for('static', filename='ckeditor-dev/ckeditor.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/ck.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='select2-4.0.4/dist/js/select2.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='select2-4.0.4/dist/js/i18n/zh-CN.js') }}"></script>
+<script type="text/javascript">
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('#category').select2({
+				placeholder: "请选择",
+				allowClear:true,//允许清除选项
+				language: "zh-CN",//汉化
+		});
+		//设置初始值
+		//$("#category").select2('val','{{ category.id }}');
+		$("#category").val(['{{ category.id }}']).trigger('change');
+
+		$('#tag').select2({
+			placeholder: "请选择",
+			multiple: true, //设置多选
+			allowClear:true,//允许清除选项
+			language: "zh-CN",//汉化
+		});
+	
+		$('#tag').val("{{ tag_ids }}".split(',')).trigger('change');
+
+		//取消
+		$('#cancel_edit_post').click(function(){
+			console.log('------------------ cancel_edit_post -----------------');
+			window.location.href='/edit/'+{{ post.id }};//跳转到编辑的文章的页面
+			console.log('------------------ cancel_edit_post -----------------');
+		});
+
+		//保存
+		$('#submit_edit_post').click(function(){
+			console.log('----------------- submit_edit_post -------------------');
+			var title = $('#title').val();//必选
+			var summary = $('#summary').val();//可选
+			var ckhtml = CKEDITOR.instances.ckhtml.getData();//必选
+
+			//验证表单提交
+			if(!title){
+				alert("必须填写博客标题");
+				$('#title').focus();//获取焦点 
+				return;
+			}else if(!$('#category').select2("data").length){
+				alert("请选择博客分类");
+				$('#category').focus();
+				return;
+			} else if(!ckhtml){
+				alert("必须填写博客内容");
+				$('ckhtml').focus();
+				return;
+			}
+
+			$('#post_edit').submit();
+			console.log('----------------- submit_edit_post -------------------');
+		});
+	});	
+</script>
 {% endblock %}
+
 
 

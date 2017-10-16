@@ -230,6 +230,12 @@ class Category(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(64),unique=True)
 	
+	def get_id(self):
+		return self.id
+
+	def get_name(self):
+		return self.name
+
 	def __repr__(self):
 		return '<Category %r>' % self.name
 
@@ -242,6 +248,12 @@ class Tag(db.Model):
 
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(64),unique=True)
+
+	def get_id(self):
+		return self.id
+
+	def get_name(self):
+		return self.name
 
 	def __repr__(self):
 		return '<Tag %r>' % self.name
@@ -282,6 +294,9 @@ class Post(db.Model):
 
 	def __unicode__(self):
 		return self.title 
+
+	def get_id(self):
+		return self.id
 
 	#生成一批虚拟博客文章 		
 	@staticmethod

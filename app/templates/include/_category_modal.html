@@ -7,18 +7,17 @@
 			</div>
 
 			<div class="modal-body">
-				<p>this is a test</p>
-				<!--<form id="categoryForm">
-					<div class="form-group">
-						<label for="category">分类名称</label>
-						<input id="category" class="form-control" name="category" value="" type="text">
-					</div>
-				</form>-->
+				<!-- 模态框内容 -->
+				<!-- 防止回车input自动提交 -->
+				<form id="category_edit" name="category_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
+					{{ category_form.csfr_token }}
+					{{ render_field(category_form.category_name, class="form-control") }}
+				</form>
 			</div>
 
 			<div class="modal-footer">
+				<input type="button" id="submit_edit_category" class="btn btn-primary" onclick="return false;" value="添加">
 				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-				<button id="categoryAdd" class="btn btn-primary">添加</button>
 			</div>
 		</div>
 	</div>

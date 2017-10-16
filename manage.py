@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 import os
 from app import create_app, db
-from app.models import User, Role,Post,Permission
+from app.models import User, Role,Post,Permission,Category,Tag
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 import flask_whooshalchemy as whooshalchemy
@@ -21,6 +21,8 @@ def make_shell_context():
 			User=User, 
 			Role=Role,
 			Post=Post,
+			Category=Category,
+			Tag=Tag,
 			Permission=Permission,
 		)
 
