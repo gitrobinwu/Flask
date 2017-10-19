@@ -86,7 +86,7 @@
 		//取消
 		$('#cancel_edit_post').click(function(){
 			console.log('------------------ cancel_edit_post -----------------');
-			window.location.href='/edit/'+{{ post.id }};//跳转到编辑的文章的页面
+			window.location.href='/edit/'+{{ post.id }}+'?useranme='+"{{ username }}";//跳转到编辑的文章的页面
 			console.log('------------------ cancel_edit_post -----------------');
 		});
 

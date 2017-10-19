@@ -14,7 +14,11 @@
 		<!-- 显示分页链接 -->
 		{% if not onepost and pagination %}	
 			<div class="pagination">
+			{% if username %}
+			{{ pagination_widget(pagination,'.index',username=username)}}
+			{% else %}
 			{{ pagination_widget(pagination,'.index')}}
+			{% endif %}
 			</div>
 		{% endif %}
 	</div><!-- blog-main-->

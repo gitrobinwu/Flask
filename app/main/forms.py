@@ -1,4 +1,5 @@
 #-*- coding:utf-8 -*- 
+from flask_login import current_user 
 from flask_wtf import FlaskForm
 from wtforms import StringField,TextAreaField,SubmitField,BooleanField,SelectField
 from flask_wtf.file import FileField,FileAllowed, FileRequired
@@ -80,13 +81,17 @@ class CKEditorPostForm(FlaskForm,CKEditor):
 	ckhtml = TextAreaField(label=u'内容',validators=[DataRequired()])
 	submit = SubmitField(label=u'提交')	
 	
-	def __init__(self,*args,**kwargs):
+	def __init__(self,username,*args,**kwargs):
 		super(CKEditorPostForm,self).__init__(*args,**kwargs)
-		# 从分类模型中加载初始选项
-		self.category.choices = [ (category.id,category.name)
-							 for category in Category.query.order_by(Category.id.asc()).all() ]
-		self.tag.choices = [ (tag.id,tag.name)
-							 for tag in Tag.query.order_by(Tag.id.asc()).all() ]
+		if username:
+			# 从分类模型中加载初始选项
+			self.category.choices = [ (category.id,category.name)
+								 for category in Category.query.filter_by(author=User.query.filter_by(username=username).first_or_404()).order_by(Category.id.asc()).all() ]
+			self.tag.choices = [ (tag.id,tag.name)
+								 for tag in Tag.query.filter_by(author=User.query.filter_by(username=username).first_or_404()).order_by(Tag.id.asc()).all() ]
+		else:
+			self.category.choices = []
+			self.tag.choices = []
 
 
 	

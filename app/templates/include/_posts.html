@@ -8,14 +8,14 @@
 			<!-- 作者头像 -->
 			<div class="listBoxAvatar">
 				{% if post.author.real_avatar %}
-					<img src="{{ post.author.real_avatar }}"  class="img-rounded blogimg-size" alt="user-avatar">
+					<a href="{{ url_for('main.index',username=post.author.username) }}"><img src="{{ post.author.real_avatar }}"  class="img-rounded blogimg-size" alt="user-avatar"></a>
 				{% else %}
-					<img class="img-rounded blogimg-size" alt="default-user-avatar" src="/static/avatar/default.jpg">
+					<a href="{{ url_for('main.index',username=post.author.username) }}"><img class="img-rounded blogimg-size" alt="default-user-avatar" src="/static/avatar/default.jpg"></a>
 				{% endif %}	
 			</div>
 			<div class="listBoxTitle">
 				<h2>
-					<a href="{{ url_for('main.post', id=post.id) }}" title="{{ post.title }}">{{ post.title }}</a>
+					<a href="{% if username %}{{ url_for('main.post', id=post.id,username=username) }}{% else %}{{ url_for('main.post',id=post.id) }}{% endif %}" title="{{ post.title }}">{{ post.title }}</a>
 				</h2>
 				<span class="timeAuthor">
 					发布于：<small>{{ moment(post.create_time).format('YYYY-MM-DD') }}</small>
@@ -37,19 +37,19 @@
 		{% if not onepost %}
 		<div class="listBoxBottom">
 			<div class="readMore">
-				<a href="{{ url_for('.post', id=post.id) }}">
+				<a href="{% if username %}{{ url_for('main.post', id=post.id,username=username) }}{% else %}{{ url_for('main.post',id=post.id) }}{% endif %}" title="{{ post.title }}">
 					<span>+阅读全文</span>
 				</a>
 			</div>
 			
 			<!-- 当前用户是文章作者 -->
 			{% if current_user == post.author %}
-			<a href="{{ url_for('.edit',id=post.id) }}">
+			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
 				<span class="label label-primary">编辑</span>
 			</a>
 			<!-- 当前用户是管理员 -->
 			{% elif current_user.is_administrator() %}
-			<a href="{{ url_for('.edit',id=post.id) }}">
+			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
 				<span class="label label-danger">编辑[管理员]</span>
 			</a>
 			{% endif %}

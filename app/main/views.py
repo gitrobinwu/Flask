@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*- 
-from flask import render_template,redirect, url_for,flash,current_app,request,abort
+from flask import render_template,redirect, url_for,flash,current_app,request,abort,session
 from flask import jsonify
 from flask_login import login_required,current_user 
 from . import main
@@ -35,18 +35,30 @@ def index():
 	# 返回当前分页记录
 	posts = pagination.items
 
-	# 增加分类索引
-	categorys = Category.query.order_by(Category.name.asc()).all()
 	
-	# 增加最新文章列表
-	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+	if username:
+		# 返回指定用户发表的最新文章列表
+		latest_posts = Post.query.\
+					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					   order_by(Post.create_time.desc()).limit(10).all()
+		# 增加分类索引
+		categorys = Category.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					order_by(Category.name.asc()).all()
+		# 增加标签集合
+		tags = Tag.query.\
+			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			   order_by(Tag.name.asc()).all()
+	else:
+		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+		categorys = []
+		tags = []
+		
 
-	# 增加标签集合
-	tags = Tag.query.all()
 	
 	# 非全文查看状态
 	return render_template('index.html',onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
 
 # 写博客
 # 添加标签和分类
@@ -55,8 +67,11 @@ def index():
 def write_post():
 	category_form = CategoryFrom()
 	tag_form = TagForm()
+	categorys_text = current_user.get_categorys_text()
+	tags_text = current_user.get_tags_text()
 
-	form = CKEditorPostForm()	
+	username = request.args.get('username',None)
+	form = CKEditorPostForm(username=username)
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
 		request.method=="POST":
@@ -101,7 +116,7 @@ def write_post():
 		db.session.commit()
 		return jsonify(id=post.get_id())
 
-	return render_template('write_post.html',form=form,category_form=category_form,tag_form=tag_form)	
+	return render_template('write_post.html',form=form,category_form=category_form,tag_form=tag_form,categorys_text=','.join(categorys_text),tags_text=','.join(tags_text))	
 
 # 上传文件或者图片
 @main.route('/ckupload/',methods=['GET','POST'])
@@ -195,29 +210,43 @@ def edit_profile_admin(id):
 def post(id):
 	post = Post.query.get_or_404(id)
 
-	# 增加分类索引
-	categorys = Category.query.order_by(Category.name.asc()).all()
-	
-	# 增加最新文章列表
-	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-
-	# 增加标签集合
-	tags = Tag.query.all()
+	username = request.args.get('username',None)
+	print 'username pppppppppppppppp',username 
+	# username 的主要作用是改变路由的访问方向
+	if username:
+		# 返回指定用户发表的最新文章列表
+		latest_posts = Post.query.\
+					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					   order_by(Post.create_time.desc()).limit(10).all()
+		# 增加分类索引
+		categorys = Category.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					order_by(Category.name.asc()).all()
+		# 增加标签集合
+		tags = Tag.query.\
+			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			   order_by(Tag.name.asc()).all()
+	else:
+		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+		categorys = []
+		tags = []
 
 	# 全文查看状态
 	return render_template('post.html',onepost=True,post=post,posts=[post],
-			categorys=categorys,latest_posts=latest_posts,tags=tags)
+			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
 
 # 编辑文章
 @main.route('/edit/<int:id>',methods=['GET','POST'])
 @login_required
 def edit(id):
 	post = Post.query.get_or_404(id)
+	session['username'] = request.args.get('username',None)
+	print 'username xxxxxxxxxxxxxxxx',session.get('username')
 	# 不是管理员或者文章作者返回403 
 	if current_user != post.author and \
 			not current_user.can(Permission.ADMINISTER):
 		abort(403)
-	form = CKEditorPostForm()
+	form = CKEditorPostForm(username=session.get('username'))
 	#if form.validate_on_submit():
 	if request.method=="POST":
 		post.title= form.title.data 
@@ -254,7 +283,8 @@ def edit(id):
 
 		db.session.add(post)
 		flash(u'文章已经被更新')
-		return redirect(url_for('.post', id=post.id))
+		print "username -------------->",session.get('username')
+		return redirect(url_for('.post', id=post.id,username=session.get('username')))
 	form.title.data = post.title
 	form.summary.data = post.fragment
 	form.ckhtml.data = post.content 
@@ -263,14 +293,19 @@ def edit(id):
 	for tag in post.tags:
 		if tag.id not in tag_ids: 
 			tag_ids.append(str(tag.id))
-	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids))
+	print 'username ********************',session.get('username')
+	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids),username=session.get('username'))
 
 # 搜索视图函数
 @main.route('/search',methods=['GET','POST'])
 def search():
+	username = request.args.get('username',None)
 	# 获取查询关键字，之所以重定向，防止用户刷新表单重复提交
 	if request.method == 'POST':
-		return redirect(url_for('.search_results',keyword=request.form['keyword']))		
+		if username:
+			return redirect(url_for('.search_results',keyword=request.form['keyword'],username=username))
+		else:	
+			return redirect(url_for('.search_results',keyword=request.form['keyword']))
 	return redirect(url_for('.index'))
 
 # 搜索结果页
@@ -280,7 +315,16 @@ def search_results(keyword):
 	print '-'*30+'results of '+keyword+'-'*30
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 
-	pagination = Post.query.\
+	username = request.args.get('username',None)
+	if username:
+		pagination = Post.query.\
+				 whoosh_search(keyword).\
+				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				 order_by(Post.create_time.desc()).paginate(
+						 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+						 error_out=False)
+	else:
+		pagination = Post.query.\
 				 whoosh_search(keyword).\
 				 order_by(Post.create_time.desc()).paginate(
 						 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
@@ -289,20 +333,30 @@ def search_results(keyword):
 	# 返回当前分页记录
 	posts = pagination.items
 
-	# 增加分类索引
-	categorys = Category.query.order_by(Category.name.asc()).all()
-
-	# 增加最新文章列表
-	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-
-	# 增加标签集合
-	tags = Tag.query.all()
-
+	if username:
+		# 返回指定用户发表的最新文章列表
+		latest_posts = Post.query.\
+					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					   order_by(Post.create_time.desc()).limit(10).all()
+		# 增加分类索引
+		categorys = Category.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					order_by(Category.name.asc()).all()
+		# 增加标签集合
+		tags = Tag.query.\
+			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			   order_by(Tag.name.asc()).all()
+	else:
+		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+		categorys = []
+		tags = []
+		
 	# 列表形式显示文章-->只显示摘要
 	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
 
 
+# 用户--> 分类/标签建立一对多
 # 添加分类
 @main.route('/new_category',methods=['GET','POST'])
 @login_required
@@ -310,7 +364,8 @@ def new_category():
 	if request.method=="POST":
 		print 'category_name = ',request.values.get('category_name')
 		# 新建分类
-		category = Category(name=request.values.get('category_name'))
+		category = Category(name=request.values.get('category_name'),
+				author=current_user._get_current_object())
 		db.session.add(category)
 		db.session.commit()
 		return jsonify(id=category.get_id(),name=category.get_name())
@@ -323,7 +378,8 @@ def new_tag():
 	if request.method=="POST":
 		print 'tag_name = ',request.values.get('tag_name')
 		# 新建标签
-		tag = Tag(name=request.values.get('tag_name'))
+		tag = Tag(name=request.values.get('tag_name'),
+				author=current_user._get_current_object())
 		db.session.add(tag)
 		db.session.commit()
 		return jsonify(id=tag.get_id(),name=tag.get_name())
@@ -336,52 +392,76 @@ def category(name):
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 	category = Category.query.filter_by(name=name).first()
-	pagination = category.posts.order_by(Post.create_time.desc()).paginate(
+	username = request.args.get('username',None)
+	pagination = category.posts.\
+				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				 order_by(Post.create_time.desc()).paginate(
 			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
 	
 	# 返回当前分页记录
 	posts = pagination.items
 
-	# 增加分类索引
-	categorys = Category.query.order_by(Category.name.asc()).all()
-	
-	# 增加最新文章列表
-	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-
-	# 增加标签集合
-	tags = Tag.query.all()
+	if username:
+		# 返回指定用户发表的最新文章列表
+		latest_posts = Post.query.\
+					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					   order_by(Post.create_time.desc()).limit(10).all()
+		# 增加分类索引
+		categorys = Category.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					order_by(Category.name.asc()).all()
+		# 增加标签集合
+		tags = Tag.query.\
+			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			   order_by(Tag.name.asc()).all()
+	else:
+		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+		categorys = []
+		tags = []
 
 	# 非全文查看状态
 	return render_template('category.html',name=name,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
 
 # 标签路由
 @main.route('/tag/<name>')
 def tag(name):
 	print "tag ================ ",name
+	username = request.args.get('username',None)
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 	tag = Tag.query.filter_by(name=name).first()
-	pagination = tag.posts.order_by(Post.create_time.desc()).paginate(
+	pagination = tag.posts.\
+				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				 order_by(Post.create_time.desc()).paginate(
 			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
 
 	# 返回当前分页记录
 	posts = pagination.items
 
-	# 增加分类索引
-	categorys = Category.query.order_by(Category.name.asc()).all()
-	
-	# 增加最新文章列表
-	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-
-	# 增加标签集合
-	tags = Tag.query.all()
+	if username:
+		# 返回指定用户发表的最新文章列表
+		latest_posts = Post.query.\
+					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					   order_by(Post.create_time.desc()).limit(10).all()
+		# 增加分类索引
+		categorys = Category.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					order_by(Category.name.asc()).all()
+		# 增加标签集合
+		tags = Tag.query.\
+			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			   order_by(Tag.name.asc()).all()
+	else:
+		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+		categorys = []
+		tags = []
 
 	# 非全文查看状态
 	return render_template('tag.html',name=name,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
 
 
 

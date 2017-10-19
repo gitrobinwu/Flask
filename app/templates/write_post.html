@@ -160,14 +160,22 @@
 			console.log('----------------- submit_edit_post -------------------');
 		});
 		
+		var categorys_text = "{{ categorys_text }}".split(',');
 		//添加分类
 		$('#submit_edit_category').click(function(){
 			var category_name = $('#category_name').val();
-			
+		
+			console.log('--------- categorys_text --------------');
+			console.log(categorys_text);
+			console.log('--------- categorys_text --------------');
 			//验证分类名称是否为空
 			if(!category_name){
 				alert("请输入分类名称");
 				$('#category_name').focus();//重新获取焦点
+				return;
+			}else if($.inArray(category_name,categorys_text)>=0){
+				alert("分类名称已经存在");
+				$('#category_name').focus();
 				return;
 			}
 			
@@ -189,6 +197,7 @@
 					$('#categoryModal').modal('hide');//隐藏模态框
 					//添加分类
 					$("#category").append(new Option(data.name,data.id,false, true));
+					categorys_text.push(category_name);
 					//window.location.href='{{ url_for('main.write_post') }}';
 					console.log("This is OK ---------------------");
 				},
@@ -200,14 +209,22 @@
 			});
 		});
 		
+		var tags_text = "{{ tags_text }}".split(',');
 		//添加标签
 		$('#submit_edit_tag').click(function(){
 			var tag_name = $('#tag_name').val();
 			
+			console.log('--------- tags_text --------------');
+			console.log(tags_text);
+			console.log('--------- tags_text --------------');
 			//验证分类名称是否为空
 			if(!tag_name){
 				alert("请输入标签名称");
 				$('#tag_name').focus();//重新获取焦点
+				return;
+			}else if($.inArray(tag_name,tags_text)>=0){
+				alert("标签名称已经存在");
+				$('tag_name').focus();
 				return;
 			}
 			
@@ -228,6 +245,7 @@
 					$('#tagModal').modal('hide');//隐藏模态框
 					//添加分类
 					$("#tag").append(new Option(data.name,data.id,false, true));
+					tags_text.push(tag_name);
 					console.log("This is OK ---------------------");
 				},
 				error: function(err){

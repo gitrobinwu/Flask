@@ -82,6 +82,28 @@ class User(UserMixin,db.Model):
 	### 用户发表的博客文章
 	posts = db.relationship('Post',backref='author',lazy='dynamic')
 
+	### 该用户下建立的分类
+	categorys = db.relationship('Category',backref='author',lazy='dynamic')
+
+	### 该用户下建立的标签
+	tags = db.relationship('Tag',backref='author',lazy='dynamic')
+
+	# 返回用户下分类名称集合
+	def get_categorys_text(self):
+		rst = list()
+		for category in self.categorys:
+			if category.name not in rst:
+				rst.append(category.name)
+		return rst
+
+	# 返回用户下标签名称集合
+	def get_tags_text(self):
+		rst = list()
+		for tag in self.tags:
+			if tag.name not in rst:
+				rst.append(tag.name)
+		return rst
+
 	# 生成一批虚拟用户数据
 	@staticmethod 
 	def generate_fake(count=100):
@@ -228,7 +250,8 @@ class Category(db.Model):
 	__tablename__ = 'categorys'
 
 	id = db.Column(db.Integer,primary_key=True)
-	name = db.Column(db.String(64),unique=True)
+	name = db.Column(db.String(64))
+	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 	
 	def get_id(self):
 		return self.id
@@ -250,7 +273,8 @@ class Tag(db.Model):
 	__tablename__ = 'tags'
 
 	id = db.Column(db.Integer,primary_key=True)
-	name = db.Column(db.String(64),unique=True)
+	name = db.Column(db.String(64))
+	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 
 	def get_id(self):
 		return self.id
