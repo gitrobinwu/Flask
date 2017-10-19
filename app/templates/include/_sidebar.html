@@ -6,4 +6,65 @@
 	</form>	
 </div>
 
+<!-- 分类列表 -->
+<div class="sidebarBox">
+	<div class="boxTop">
+		<span>日志分类</span>
+	</div>
+	<div class="boxClassify">
+		{% if categorys %}
+		<ul class="sidebarList">
+			{% for category in categorys %}
+			<li>
+				<a href="{{ url_for('.category',name=category.name) }}" title="{{ category.name }}">
+					<span>{{ category.name }}</span>
+					<span class="badge" style="margin-left: 5px;">{{ category.get_posts_length() }}</span>	
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+	</div>
+</div>
+
+<!-- 最新文章(post按时间取前10个) -->
+<div class="sidebarBox">
+	<div class="boxTop">
+		<span>最新文章</span>
+	</div>
+	<div class="boxContent">
+		{% if latest_posts %}
+		<ul class="sidebarList">
+			{% for latest_post in latest_posts %}
+			<li>
+				<a href="{{ url_for('main.post', id=latest_post.id) }}" title="{{ latest_post.title }}">
+					<span style="margin-right: 6px;" class="glyphicon glyphicon-book"></span><span>{{ latest_post.title | truncate(20) }}</span>
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+	</div>
+</div>
+
+<!-- 标签集合 -->
+<div class="sidebarBox">
+	<div class="boxTop clearfix">
+		<span>标签</span>
+	</div>
+	<div class="boxTag clearfix">
+		{% if tags %}
+		<ul class="sidebarList clearfix">
+			{% for tag in tags %}
+			<li style="float:left;">
+				<a href="{{ url_for('.tag',name=tag.name) }}" title="{{ tag.name }}">
+					<span>{{ tag.name }}</span>					
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+	</div>
+</div>
+
 

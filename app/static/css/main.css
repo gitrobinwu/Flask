@@ -27,15 +27,50 @@ body {
 .title-header{
 	width: 30%;
 	padding-bottom: 9px;
-	margin: 40px 0 20px;
+	/*margin: 40px 0 20px;*/
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .title-font {
 	margin: 0 0 10px;
 	font-family: 微软雅黑;
 	font-weight: bold;
-	font-size: 26px;
+	font-size: 23px;
 }
 /**************/
+
+/* 导航栏调整 */
+#logo {
+	height: 50px; 
+	position: relative; 
+	left: -35px;
+}
+#logo a{
+	color: #fff;
+}
+#header a {
+	padding: 15px 30px;
+	color: #8C8C8C;
+	font-size: 15px;
+}
+
+#header a:hover {
+	background: #5F5F5F;
+	color: #fff;
+}
+
+#navcur {
+	background: #6BC30D;
+}
+#navcur a {
+	color: #fff;
+}
+
+#navcur a:hover {
+	background: #6BC30D;
+	color: #fff;
+}
+
 
 

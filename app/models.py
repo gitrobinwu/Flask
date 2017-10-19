@@ -236,6 +236,9 @@ class Category(db.Model):
 	def get_name(self):
 		return self.name
 
+	def get_posts_length(self):
+		return len(self.posts.all())
+
 	def __repr__(self):
 		return '<Category %r>' % self.name
 

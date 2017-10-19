@@ -12,9 +12,9 @@
 		margin-bottom: 60px;
 	}
 	.edit-main {
-		margin-left: 30px;
 		width: 90%;
 		margin-top: 20px;
+		margin-bottom: 20px;
 	}
 </style>
 {% endblock %}
@@ -32,7 +32,8 @@
 	<!-- 文章作者或者管理员可以编辑 -->
 	{% if current_user == post.author or current_user.can(Permission.ADMINISTER) %}			
 	<div class="row">	
-		<div class="col-md-10 col-md-offset-1">
+		<div class="edit-main center-block">
+			<!-- action="" 当前页 -->
 			<form action="{{ url_for('.edit',id=post.id) }}" method="post" id="post_edit" name="post_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
 				{{ form.csfr_token }}
 				{{ render_field(form.title, class="form-control") }}

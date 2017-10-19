@@ -1,7 +1,7 @@
 <div style="background: #323436; height: 50px;" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 	<div class="container">
 	<!-- 导航栏标题 -->
-	<div id="logo" class="navbar-header">
+	<div class="navbar-header">
 		<!--.navbar-toggle样式用于toggle收缩的内容，即nav-collapse collapse样式所在元素 -->
 		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-material-light-blue-collapse">
             <span class="sr-only">Toggle navigation</span>
@@ -11,15 +11,12 @@
 		</button>
 		<a class="navbar-brand" href="http://www.bjhee.com/">Robin.Wu</a>
 	</div>
-    <div id="header" class="navbar-collapse collapse navbar-material-light-blue-collapse">
+    <div class="navbar-collapse collapse navbar-material-light-blue-collapse">
         <ul class="nav navbar-nav">
-            <li id="navcur">
-				<a href="{{ url_for('main.index') }}">
-					<span class="glyphicon glyphicon-home"></span>
-					<span>首页</span>
-				</a>
+            <li>
+			<a href="{{ url_for('main.index') }}">
+				<span class="glyphicon glyphicon-home">&nbsp;首页</span></a>
 			</li>
-
 			<!-- 显示当前用户资料 -->
 			{% if current_user.is_authenticated %}
 				<li><a href="{{ url_for('main.write_post') }}">写博客</a></li>
@@ -39,16 +36,11 @@
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation">
 						<a role="menuitem" tabindex="-1" href="{{ url_for('auth.logout') }}">
-						<span class="glyphicon glyphicon-log-out"></span>
-						<span>注销</span>
-						</a>
-						
+						<span class="glyphicon glyphicon-log-out">&nbsp;注销</a>
 					</li>
                     <li role="presentation">
 						<a role="menuitem" tabindex="-1" href="{{ url_for('auth.change_password') }}">
-							<span class="glyphicon glyphicon-edit"></span>
-							<span>更改密码</span>
-						</a>
+						<span class="glyphicon glyphicon-edit">&nbsp;更改密码</a>
 					</li>
 				</ul>
 			</li>
@@ -62,15 +54,11 @@
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu2">
                     <li role="presentation">
 						<a role="menuitem" tabindex="-1" href="{{ url_for('auth.register') }}">
-							<span class="glyphicon glyphicon-user"></span>
-							<span>注册</span>
-						</a>
+						<span class="glyphicon glyphicon-user">&nbsp;注册</a>
 					</li>
                     <li role="presentation">
 						<a role="menuitem" tabindex="-1" href="{{ url_for('auth.login') }}">
-							<span class="glyphicon glyphicon-log-in"></span>
-							<span>登录</span>
-						</a>
+						<span class="glyphicon glyphicon-log-in">&nbsp;登录</a>
                     <li>
                 </ul>
             </li>

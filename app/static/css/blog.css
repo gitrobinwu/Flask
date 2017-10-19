@@ -71,9 +71,11 @@ span.timeAuthor small {
 	height: 75px;
 }
 .listBoxCenter{
-	margin: auto;
-	width: 90%;
-	overflow: hidden;
+	margin: 15px auto;
+	/*width: 90%;*/
+	width: 750px;
+	/*overflow: hidden;*/
+	line-height: 25px;
 }
 .post-body {
 	font-size: 16px;
@@ -115,13 +117,14 @@ div.pagination {
 
 /* 搜索框 */
 #searchBox {
-	width: 258px;
+	width: 260px;
 	height: 50px;
 	background: #fff;
 	border: 1px solid #dedede;
 	float: left;
 	overflow: hidden;
 	clear: both;
+	margin-bottom: 20px;
 }
 #searchInput {
 	float: left;
@@ -142,6 +145,84 @@ div.pagination {
 	margin-top: 18px;
 	margin-left: 10px;
 	font-size: 14px;
+}
+
+/* 日志分类索引 */
+.sidebarBox {
+	float: left;
+	background: #fff;
+	width: 260px;
+	margin-top: 10px;
+}
+
+.boxTop {
+	height: 40px;
+	line-height: 40px;
+	padding-left: 10px;
+	border-bottom: #dedede 1px solid;
+	color: #444444;
+	font-size: 14px;
+	font-weight: bold;
+}
+.boxClassify {
+	padding: 15px 0px;
+	width: 260px;
+	line-height: 26px;
+}
+.sidebarList {
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+.boxClassify a {
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: bold;
+	padding-left: 15px;
+	color: #222;
+}
+.boxClassify a:hover {
+	color: #D02F53;;
+	text-decoration: none;
+}
+/*///////////////////////*/
+
+/*最新日志索引*/
+.boxContent {
+	padding: 15px 0px;
+	width: 260px;
+	font-size: 13px;
+	color: #222;
+	line-height: 26px;
+}
+.boxContent a {
+	color: #222;
+	text-decoration: none;
+	padding: 0px 15px;
+}
+
+.boxContent a:hover {
+	color: #D02F53;;
+	text-decoration: none;
+}
+
+/*标签索引*/
+.boxTag {
+	margin-top: 15px;
+	margin-left: 10px;
+	width: 260px;
+	margin-bottom: 20px;
+}
+.boxTag a {
+	display: inline-block;
+	padding: 4px 12px;
+	border: 1px solid #f0f0f0;
+	color: #666;
+	text-transform: uppercase;
+	line-height: 19px;
+	font-size: 13px !important;
+	margin-right: 5px;
+	margin-bottom: 4px;
 }
 
 

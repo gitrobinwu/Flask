@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block page_content %}
+<div class="container">
+<div class="row">
+	<!-- 博客文章列表 -->
+	{% include 'include/_posts.html' %}
+</div>	
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('.listBox').css('padding-bottom','100px');		
+		$('.posts').css('margin-top','20px');
+	});
+</script>
+{% endblock %}
+
+

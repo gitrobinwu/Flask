@@ -41,7 +41,7 @@
 					<span>+阅读全文</span>
 				</a>
 			</div>
-
+			
 			<!-- 当前用户是文章作者 -->
 			{% if current_user == post.author %}
 			<a href="{{ url_for('.edit',id=post.id) }}">

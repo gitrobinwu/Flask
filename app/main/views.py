@@ -10,20 +10,43 @@ from ..decorators import admin_required
 from sqlalchemy import or_
 from sqlalchemy import and_
 
+# 用户个人站点 
+# http://10.0.1.161:5008/?username=robin
+
 # 首页-->处理博客文章
 @main.route('/', methods=['GET'])
 def index():
-	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
-	pagination = Post.query.order_by(Post.create_time.desc()).paginate(
-			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+
+	username = request.args.get('username',None)
+	print 'username ================ ',username
+	if username:
+		# 如果查询字符串中用户名非空，返回用户个人站点
+		user = User.query.filter_by(username=username).first_or_404()
+		pagination = user.posts.order_by(Post.create_time.desc()).paginate(
+				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+				error_out=False)
+	else:
+		#按时间排序返回博客文章
+		pagination = Post.query.order_by(Post.create_time.desc()).paginate(
+				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+				error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
 	
 	# 返回当前分页记录
 	posts = pagination.items
+
+	# 增加分类索引
+	categorys = Category.query.order_by(Category.name.asc()).all()
+	
+	# 增加最新文章列表
+	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+
+	# 增加标签集合
+	tags = Tag.query.all()
+	
 	# 非全文查看状态
 	return render_template('index.html',onepost=False,posts=posts,
-							pagination=pagination)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
 
 # 写博客
 # 添加标签和分类
@@ -171,15 +194,19 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>')
 def post(id):
 	post = Post.query.get_or_404(id)
-	# 全文查看状态
-	return render_template('post.html',onepost=True,post=post,posts=[post])
 
-@main.route('/get_post/<title>')
-def get_post(title):
-	post = Post.query.filter_by(title=title).first_or_404()
-	# 全文查看状态
-	return render_template('post.html',onepost=True,post=post,posts=[post])
+	# 增加分类索引
+	categorys = Category.query.order_by(Category.name.asc()).all()
+	
+	# 增加最新文章列表
+	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
 
+	# 增加标签集合
+	tags = Tag.query.all()
+
+	# 全文查看状态
+	return render_template('post.html',onepost=True,post=post,posts=[post],
+			categorys=categorys,latest_posts=latest_posts,tags=tags)
 
 # 编辑文章
 @main.route('/edit/<int:id>',methods=['GET','POST'])
@@ -261,9 +288,19 @@ def search_results(keyword):
 	
 	# 返回当前分页记录
 	posts = pagination.items
+
+	# 增加分类索引
+	categorys = Category.query.order_by(Category.name.asc()).all()
+
+	# 增加最新文章列表
+	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+
+	# 增加标签集合
+	tags = Tag.query.all()
+
 	# 列表形式显示文章-->只显示摘要
 	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
-							pagination=pagination)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
 
 
 # 添加分类
@@ -291,5 +328,60 @@ def new_tag():
 		db.session.commit()
 		return jsonify(id=tag.get_id(),name=tag.get_name())
 	return redirect(url_for('.write_post'))
+
+# 分类路由	
+@main.route('/category/<name>')
+def category(name):
+	print "category =============== ",name;
+	#按时间排序返回博客文章
+	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
+	category = Category.query.filter_by(name=name).first()
+	pagination = category.posts.order_by(Post.create_time.desc()).paginate(
+			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+	
+	# 返回当前分页记录
+	posts = pagination.items
+
+	# 增加分类索引
+	categorys = Category.query.order_by(Category.name.asc()).all()
+	
+	# 增加最新文章列表
+	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+
+	# 增加标签集合
+	tags = Tag.query.all()
+
+	# 非全文查看状态
+	return render_template('category.html',name=name,onepost=False,posts=posts,
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+
+# 标签路由
+@main.route('/tag/<name>')
+def tag(name):
+	print "tag ================ ",name
+	#按时间排序返回博客文章
+	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
+	tag = Tag.query.filter_by(name=name).first()
+	pagination = tag.posts.order_by(Post.create_time.desc()).paginate(
+			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+
+	# 返回当前分页记录
+	posts = pagination.items
+
+	# 增加分类索引
+	categorys = Category.query.order_by(Category.name.asc()).all()
+	
+	# 增加最新文章列表
+	latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
+
+	# 增加标签集合
+	tags = Tag.query.all()
+
+	# 非全文查看状态
+	return render_template('tag.html',name=name,onepost=False,posts=posts,
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags)
+
 
 
