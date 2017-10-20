@@ -130,34 +130,6 @@
 	</div>
 </div>	<!-- end container -->
 
-<div class="container" style="width: 80%;">
-	<!-- header -->
-	<div class="row">
-		<div class="userTitle">
-			<span>用户发表过的文章列表</span>
-		</div>
-	</div>
-
-	<!-- 用户发表的博客文章列表 -->
-	<div class="row">
-		<div>
-		{% include 'include/_posts.html' %}
-
-		<!-- 显示分页链接 -->
-		{% if not onepost and pagination %}	
-			<div class="pagination">
-			{{ pagination_widget(pagination,'.user',username=user.username)}}
-			</div>
-		{% endif %}
-		</div>
-	</div>
-</div>
-{% endblock %}
-
-<!-- 根据博客具体内容长度，动态决定是否隐藏超出内容 -->
-{% block scripts %}
-{{ super() }}
-<script type="text/javascript" src="{{ url_for('static', filename='js/blog.js') }}"></script>
 {% endblock %}
 
 

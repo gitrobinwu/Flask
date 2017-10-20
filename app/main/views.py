@@ -50,9 +50,20 @@ def index():
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
 	else:
+		# 所有用户的文章列表
 		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		categorys = []
-		tags = []
+		if current_user.is_authenticated:
+			# 当前登录用户的分类
+			categorys = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						order_by(Category.name.asc()).all()
+			# 当前登录用户的标签
+			tags = Tag.query.\
+					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+					order_by(Tag.name.asc()).all()
+		else:
+			categorys = []
+			tags = []
 		
 
 	
@@ -71,7 +82,7 @@ def write_post():
 	tags_text = current_user.get_tags_text()
 
 	username = request.args.get('username',None)
-	form = CKEditorPostForm(username=username)
+	form = CKEditorPostForm()
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
 		request.method=="POST":
@@ -209,9 +220,10 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>')
 def post(id):
 	post = Post.query.get_or_404(id)
+	# 更新该篇博文的浏览量计数
+	post.add_viewcount()
 
-	username = request.args.get('username',None)
-	print 'username pppppppppppppppp',username 
+	username = request.values.get('username',None)
 	# username 的主要作用是改变路由的访问方向
 	if username:
 		# 返回指定用户发表的最新文章列表
@@ -228,9 +240,19 @@ def post(id):
 			   order_by(Tag.name.asc()).all()
 	else:
 		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		categorys = []
-		tags = []
-
+		if current_user.is_authenticated:
+			# 当前登录用户的分类
+			categorys = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						order_by(Category.name.asc()).all()
+			# 当前登录用户的标签
+			tags = Tag.query.\
+					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+					order_by(Tag.name.asc()).all()
+		else:
+			categorys = []
+			tags = []
+	
 	# 全文查看状态
 	return render_template('post.html',onepost=True,post=post,posts=[post],
 			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
@@ -246,7 +268,7 @@ def edit(id):
 		abort(403)
 
 	username = request.args.get('username',None)
-	form = CKEditorPostForm(username=username)
+	form = CKEditorPostForm()
 	#if form.validate_on_submit():
 	if request.method=="POST":
 		print '-'*60
@@ -257,6 +279,10 @@ def edit(id):
 		print 'ckhtml = ',request.values.get('ckhtml')
 		print '-'*60
 		
+		# 更新标题和内容
+		post.title= request.values.get('title')
+		post.content = request.values.get('ckhtml')
+
 		# 更新摘要
 		if request.values.get('summary'):
 			post.fragment = request.values.get('summary') +' ...'
@@ -268,7 +294,6 @@ def edit(id):
 
 		# 标签(可选)
 		tag = request.values.getlist('tag')[0].encode('utf-8')
-		print category,tag
 		if tag:
 			tags = list()
 			for tag_name in tag.split(','):
@@ -292,7 +317,7 @@ def edit(id):
 	for tag in post.tags:
 		if tag.id not in tag_ids: 
 			tag_ids.append(str(tag.id))
-	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids),username=username))
+	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids),username=username)
 
 # 搜索视图函数
 @main.route('/search',methods=['GET','POST'])
@@ -346,8 +371,18 @@ def search_results(keyword):
 			   order_by(Tag.name.asc()).all()
 	else:
 		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		categorys = []
-		tags = []
+		if current_user.is_authenticated:
+			# 当前登录用户的分类
+			categorys = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						order_by(Category.name.asc()).all()
+			# 当前登录用户的标签
+			tags = Tag.query.\
+					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+					order_by(Tag.name.asc()).all()
+		else:
+			categorys = []
+			tags = []
 		
 	# 列表形式显示文章-->只显示摘要
 	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
@@ -391,11 +426,20 @@ def category(name):
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 	category = Category.query.filter_by(name=name).first()
 	username = request.args.get('username',None)
-	pagination = category.posts.\
+	print "username ===============",username
+
+	if username:
+		pagination = category.posts.\
 				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 				 order_by(Post.create_time.desc()).paginate(
-			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+	else:
+		pagination = category.posts.\
+				 order_by(Post.create_time.desc()).paginate(
+					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+		
 	
 	# 返回当前分页记录
 	posts = pagination.items
@@ -415,8 +459,18 @@ def category(name):
 			   order_by(Tag.name.asc()).all()
 	else:
 		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		categorys = []
-		tags = []
+		if current_user.is_authenticated:
+			# 当前登录用户的分类
+			categorys = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						order_by(Category.name.asc()).all()
+			# 当前登录用户的标签
+			tags = Tag.query.\
+					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+					order_by(Tag.name.asc()).all()
+		else:
+			categorys = []
+			tags = []
 
 	# 非全文查看状态
 	return render_template('category.html',name=name,onepost=False,posts=posts,
@@ -430,11 +484,18 @@ def tag(name):
 	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
 	tag = Tag.query.filter_by(name=name).first()
-	pagination = tag.posts.\
-				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+	if username:
+		pagination = tag.posts.\
+				filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 				 order_by(Post.create_time.desc()).paginate(
-			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-			error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+	else:
+		pagination = tag.posts.\
+				 order_by(Post.create_time.desc()).paginate(
+					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+		
 
 	# 返回当前分页记录
 	posts = pagination.items
@@ -454,8 +515,18 @@ def tag(name):
 			   order_by(Tag.name.asc()).all()
 	else:
 		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		categorys = []
-		tags = []
+		if current_user.is_authenticated:
+			# 当前登录用户的分类
+			categorys = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						order_by(Category.name.asc()).all()
+			# 当前登录用户的标签
+			tags = Tag.query.\
+					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+					order_by(Tag.name.asc()).all()
+		else:
+			categorys = []
+			tags = []
 
 	# 非全文查看状态
 	return render_template('tag.html',name=name,onepost=False,posts=posts,

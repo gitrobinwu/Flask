@@ -41,3 +41,32 @@
 							<span>添加分类</span>
 						</a>
 						{% include 'include/category_modal.html' %}
+
+						------------
+
+			<!--	
+			<!-- 分类 -->
+			{% if categorys %}
+				<small class="listBoxBottomCategory">日志分类：<small>
+				<ul>
+				{% for category in categorys %}
+					<li class="pull-left">
+						<small>{{ category.name }}</small>
+					</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+
+			<!-- 当前用户是文章作者 -->
+			{% if current_user == post.author %}
+			<a class="pull-right" href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
+				<span class="label label-primary">编辑</span>
+			</a>
+			{% endif %}
+			<!-- 当前用户是管理员 -->
+			{% if current_user.is_administrator() %}
+			<a class="pull-right" href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
+				<span class="label label-danger">编辑[管理员]</span>
+			</a>
+			{% endif %}
+			-->

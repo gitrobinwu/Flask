@@ -304,6 +304,7 @@ class Post(db.Model):
 	title = db.Column(db.String(64)) # 标题
 	content = db.Column(db.Text) # 内容
 	fragment = db.Column(db.Text) # 内容片段，用于主页显示 
+	viewcount = db.Column(db.Integer,default=0)
 	create_time = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 
@@ -324,6 +325,11 @@ class Post(db.Model):
 
 	def get_id(self):
 		return self.id
+
+	def add_viewcount(self):
+		self.viewcount +=1
+		db.session.add(self)
+		db.session.commit()
 
 	#生成一批虚拟博客文章 		
 	@staticmethod

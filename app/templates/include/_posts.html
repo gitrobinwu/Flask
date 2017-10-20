@@ -7,6 +7,7 @@
 		<div class="listBoxTop">
 			<!-- 作者头像 -->
 			<div class="listBoxAvatar">
+				<!-- 点击用户头像进入个人站点 -->
 				{% if post.author.real_avatar %}
 					<a href="{{ url_for('main.index',username=post.author.username) }}"><img src="{{ post.author.real_avatar }}"  class="img-rounded blogimg-size" alt="user-avatar"></a>
 				{% else %}
@@ -20,6 +21,7 @@
 				<span class="timeAuthor">
 					发布于：<small>{{ moment(post.create_time).format('YYYY-MM-DD') }}</small>
 					&nbsp;&nbsp;|&nbsp;&nbsp;作者：<small>{{ post.author.username }}</small>
+					&nbsp;&nbsp;|&nbsp;&nbsp;浏览量：<small>{{ post.viewcount }}</small>
 					</span>
 			</div>	
 		</div>	
@@ -31,28 +33,52 @@
 			{% else %}
 				<div class="post-body">{{ post.fragment | safe }}</div>
 			{% endif %}
-		</div>
-		
-		<!-- 是否全文查看状态 -->
-		{% if not onepost %}
-		<div class="listBoxBottom">
 			<div class="readMore">
 				<a href="{% if username %}{{ url_for('main.post', id=post.id,username=username) }}{% else %}{{ url_for('main.post',id=post.id) }}{% endif %}" title="{{ post.title }}">
 					<span>+阅读全文</span>
 				</a>
 			</div>
-			
+		</div>
+		
+		<!-- 是否全文查看状态 -->
+		{% if not onepost %}
+		<div class="listBoxBottom">
+			<!-- 标签 -->
+			<div class="listBoxBottomTag" style="flaot: left;">
+			{% if post.tags %}
+				<span style="font-size: 14px; float: left; color: #5f5454;">标签：</span>
+				<ul>
+				{% for tag in post.tags %}
+					<li>
+						<span style="font-size: 14px; color: #5f5454;">{{ tag.name }}</span>
+					</li>	
+				{% endfor %}
+				</ul>
+			{% endif %}
+			</div>
+
+			<div class="listBoxBottomCat">
+			{% if post.category %}
+				<span class="bottomCategory" style="font-size: 14px; color: #5f5454; margin-right: 15px;">日志分类：
+					<a href="{% if username %}{{ url_for('.category',name=post.category.name,username=username) }}{% else %}{{ url_for('.category',name=post.category.name) }}{% endif %}" title="{{ post.category.name }}">
+						<span>{{ post.category.name }}</span>
+					</a>
+				</span>
+			{% endif %}
+
 			<!-- 当前用户是文章作者 -->
 			{% if current_user == post.author %}
-			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
+			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}" style="margin-right: 5px;">
 				<span class="label label-primary">编辑</span>
 			</a>
+			{% endif %}
 			<!-- 当前用户是管理员 -->
-			{% elif current_user.is_administrator() %}
+			{% if current_user.is_administrator() %}
 			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}">
 				<span class="label label-danger">编辑[管理员]</span>
 			</a>
 			{% endif %}
+			</div>
 		</div>
 		{% endif %}
 	</li><!--listBox-->

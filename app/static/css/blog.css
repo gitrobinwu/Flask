@@ -94,18 +94,50 @@ span.timeAuthor small {
 /*阅读更多*/
 .readMore {
 	display: inline-block;
-	margin-right: 10px;
+	margin-top: 20px;
 }
 .readMore a{
 	color: #D02F53;
 	font-weight: bold;
 	overflow: hidden;
-	margin-left: 15px;
 }
 .readMore a:hover {
 	color: #000;
 	text-decoration: none;
 	border-bottom: 1px solid #000;
+}
+/*博文下面标签分类*/
+.listBoxBottomTag {
+	float: left;
+	display: inline-block;
+	margin-left: 15px;
+}
+.listBoxBottomTag ul {
+	float: left;
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+.listBoxBottomTag ul li {
+	float: left;
+	padding: 0 5px; 
+}
+.listBoxBottomCategory {
+	float: right;
+}
+
+.listBoxBottomCat {
+	float: right;
+	display: inline-block;
+}
+.bottomCategory a{
+	color: #669900;
+	text-decoration: none;
+}
+.bottomCategory a:hover {
+	color: #c21111;
+	text-decoration: none;
+	border-bottom: 1px solid #c21111;
 }
 /*尾部分页*/
 div.pagination {

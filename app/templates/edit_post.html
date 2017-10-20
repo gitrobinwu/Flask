@@ -87,7 +87,7 @@
 		$('#cancel_edit_post').click(function(){
 			console.log('------------------ cancel_edit_post -----------------');
 			let username = "{{ username }}";
-			if(username){
+			if(username && username!="None"){
 				window.location.href='/edit/'+{{ post.id }}+'?useranme='+"{{ username }}";//跳转到编辑的文章的页面
 			}else{
 				window.location.href='/edit/'+{{ post.id }};//跳转到编辑的文章的页面
@@ -129,14 +129,14 @@
 			console.log(form_data);
 
 			$.ajax({
-				url: "{{ url_for('.edit') }}",
+				url: "{{ url_for('.edit',id=post.id) }}",
 				type: "post",
 				data: form_data,
 				success: function(data){
 					console.log("This is OK ---------------------");
 					console.log(data.id);
 					let username = "{{ username }}";
-					if(username){
+					if(username && username!="None"){
 						window.location.href='/post/'+data.id+"?username="+username;//跳转到已提交的文章的页面
 					}else{
 						window.location.href='/post/'+data.id;//跳转到已提交的文章的页面

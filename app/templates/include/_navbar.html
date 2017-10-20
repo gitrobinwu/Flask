@@ -13,25 +13,44 @@
 	</div>
     <div id="header" class="navbar-collapse collapse navbar-material-light-blue-collapse">
         <ul class="nav navbar-nav">
+			<!-- 如果用户未登录 -->
             <li id="navcur">
-				<a href="{% if current_user.is_authenticated %}{{ url_for('main.index',username=current_user.username) }}{% else %}{{ url_for('main.index') }}{% endif %}">
+				<a href="{% if username %}{{ url_for('main.index',username=username) }}{% else %}{{ url_for('main.index') }}{% endif %}">
 					<span class="glyphicon glyphicon-home"></span>
 					<span>首页</span>
 				</a>
 			</li>
+				
 			
 			<!-- 分类菜单 -->
+			<!-- 用户可能会在登录或者非登录状态下，切换到用户个人站点 -->
 			{% if username %}
+				{% if categorys %}
+				{% for category in categorys %}
+				<li><a href="{{ url_for('.category',name=category.name,username=username) }}" title="{{ category.name }}">{{ category.name }}</a></li>
+				{% endfor %}
+				{% endif %}
 			{% endif %}
+
 			<!-- 显示当前用户资料 -->
-			{% if current_user.is_authenticated %}
-				<li><a href="{{ url_for('main.write_post',username=current_user.username) }}">写博客</a></li>
+			{% if current_user.is_authenticated and not username %}
+				<li><a href="{{ url_for('main.write_post') }}">写博客</a></li>
 				<li><a href="{{ url_for('main.user',username=current_user.username) }}">关于我</a></li>
 			{% endif %}
-        </ul>
+		</ul>
 
-		<!--用户相关-->
+		<!-- 关于博主 -->
+		{% if username %}
+		<ul class="nav navbar-nav navbar-right">
+			<li>
+				<a href="{{ url_for('.user',username=username) }}">关于我</a>
+			</li>
+		</ul>
+		{% endif %}
+
+		<!-- 非个人用户站点时，才会显示相关内容 -->
 		{% if not username %}
+		<!--用户相关-->
 		<ul class="nav navbar-nav navbar-right">
 			<!-- 如果用户已登录 -->
             {% if current_user.is_authenticated %}

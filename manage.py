@@ -49,7 +49,7 @@ def admin():
 		email = email,
 		username = username,
 		password = password,
-		role_id = 2,
+		role = Role.query.get(2),
 		confirmed = True
 	)
 	db.session.add(u)

@@ -106,7 +106,7 @@
 		$('#cancel_edit_post').click(function(){
 			console.log('------------------ cancel_edit_post -----------------');
 			let username = "{{ username }}";
-			if(username){
+			if(username && username!="None"){
 				window.location.href='/write-post'+"?username="+username;//跳转到写的文章的页面
 			}else{
 				window.location.href='/write-post';//跳转到写的文章的页面
@@ -117,9 +117,9 @@
 		//发表博客
 		$('#submit_edit_post').click(function(){
 			console.log('----------------- submit_edit_post -------------------');
-			var title = $('#title').val();//必选
-			var summary = $('#summary').val();//可选
-			var ckhtml = CKEDITOR.instances.ckhtml.getData();//必选
+			let title = $('#title').val();//必选
+			let summary = $('#summary').val();//可选
+			let ckhtml = CKEDITOR.instances.ckhtml.getData();//必选
 
 			//验证表单提交
 			if(!title){
@@ -136,14 +136,14 @@
 				return;
 			}
 
-			var category_text = $('#category').select2("data")[0].text;//分类必选
-			var tag_text = new Array();
-			var res = $("#tag").select2("data");//标签可选
-			for(var i=0;i<res.length;i++){
+			let category_text = $('#category').select2("data")[0].text;//分类必选
+			let tag_text = new Array();
+			let res = $("#tag").select2("data");//标签可选
+			for(let i=0;i<res.length;i++){
 				console.log(res[i].text);
 				tag_text.push(res[i].text);
 			}	
-			var form_data = {"title": title, "summary": summary, "category": category_text, "tag": tag_text.join(','), "ckhtml": ckhtml};
+			let form_data = {"title": title, "summary": summary, "category": category_text, "tag": tag_text.join(','), "ckhtml": ckhtml};
 			console.log(form_data);
 
 			$.ajax({
@@ -154,7 +154,7 @@
 					console.log("This is OK ---------------------");
 					console.log(data.id);
 					let username = "{{ username }}";
-					if(username){
+					if(username && username!="None"){
 						window.location.href='/post/'+data.id+"?username="+username;//跳转到已提交的文章的页面
 					}else{
 						window.location.href='/post/'+data.id;//跳转到已提交的文章的页面
@@ -173,7 +173,7 @@
 		var categorys_text = "{{ categorys_text }}".split(',');
 		//添加分类
 		$('#submit_edit_category').click(function(){
-			var category_name = $('#category_name').val();
+			let category_name = $('#category_name').val();
 		
 			console.log('--------- categorys_text --------------');
 			console.log(categorys_text);
@@ -187,9 +187,12 @@
 				alert("分类名称已经存在");
 				$('#category_name').focus();
 				return;
+			}else if(categorys_text.length>6){
+				alert("最多创建6个博客分类");
+				return;
 			}
 			
-			var form_data = {"category_name": category_name};
+			let form_data = {"category_name": category_name};
 
 			console.log('***************************************');
 			console.log(category_name)
@@ -222,7 +225,13 @@
 		var tags_text = "{{ tags_text }}".split(',');
 		//添加标签
 		$('#submit_edit_tag').click(function(){
-			var tag_name = $('#tag_name').val();
+			let tag_name = $('#tag_name').val();
+			let tag_text = new Array();
+			let res = $("#tag").select2("data");//标签可选
+			for(let i=0;i<res.length;i++){
+				console.log(res[i].text);
+				tag_text.push(res[i].text);
+			}	
 			
 			console.log('--------- tags_text --------------');
 			console.log(tags_text);
@@ -236,9 +245,12 @@
 				alert("标签名称已经存在");
 				$('tag_name').focus();
 				return;
+			}else if(tag_text.length>6){
+				alert("一篇博客最多添加6个标签");
+				return;
 			}
 			
-			var form_data = {"tag_name": tag_name};
+			let form_data = {"tag_name": tag_name};
 
 			console.log('***************************************');
 			console.log(tag_name)
