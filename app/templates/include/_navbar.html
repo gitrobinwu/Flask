@@ -14,7 +14,7 @@
     <div id="header" class="navbar-collapse collapse navbar-material-light-blue-collapse">
         <ul class="nav navbar-nav">
 			<!-- 如果用户未登录 -->
-            <li id="navcur">
+            <li id="navcur" style="margin-left: 35px;">
 				<a href="{% if username %}{{ url_for('main.index',username=username) }}{% else %}{{ url_for('main.index') }}{% endif %}">
 					<span class="glyphicon glyphicon-home"></span>
 					<span>首页</span>
@@ -35,15 +35,15 @@
 			<!-- 显示当前用户资料 -->
 			{% if current_user.is_authenticated and not username %}
 				<li><a href="{{ url_for('main.write_post') }}">写博客</a></li>
-				<li><a href="{{ url_for('main.user',username=current_user.username) }}">关于我</a></li>
+				<li><a href="{{ url_for('main.user',name=current_user.username) }}">关于我</a></li>
 			{% endif %}
 		</ul>
 
 		<!-- 关于博主 -->
 		{% if username %}
 		<ul class="nav navbar-nav navbar-right">
-			<li>
-				<a href="{{ url_for('.user',username=username) }}">关于我</a>
+			<li id="about_me">
+				<a href="{{ url_for('.user',name=username,username=username) }}">关于我</a>
 			</li>
 		</ul>
 		{% endif %}

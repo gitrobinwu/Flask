@@ -1,0 +1,46 @@
+.profile-left {
+	float: left;
+	height: 350px;
+	border: 1px solid #dad3d3;
+	margin: 30px 30px;
+	box-sizing: border-box;
+}
+.profile-right {
+	float: left;
+	height: 350px;
+	border: 1px solid #dad3d3;
+	margin: 30px 0px;
+	box-sizing: border-box;
+}
+.profile-user {
+	padding: 60px 30px;
+	line-height: 30px;
+	font-size: 15px;
+	font-family: 微软雅黑;
+}
+.img-size {
+	width: 150px;
+	height: 150px;
+}
+.username-text {
+	font-size: 30px;
+	font-family: 微软雅黑;
+	line-height: 60px;
+}
+.moment-time {
+	position: relative;
+	left: 20px;
+	line-height: 30px;
+}
+.btn-edit {
+	padding-left: 30px;
+	padding-right: 10px;
+}
+.userTitle {
+	line-height: 45px;
+	font-size: 23px;
+	margin: 10px 0;
+}
+
+
+

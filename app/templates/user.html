@@ -1,54 +1,9 @@
 {% extends "base.html" %}
-{% from 'include/_macros.html' import pagination_widget %}
 
 {% block title %}关于我{% endblock %}
 {% block styles %}
-	{{ super() }}
-	<style>
-		.profile-left {
-			float: left;
-			height: 350px;
-			border: 1px solid #dad3d3;
-			margin: 30px 30px;
-			box-sizing: border-box;
-		}
-		.profile-right {
-			float: left;
-			height: 350px;
-			border: 1px solid #dad3d3;
-			margin: 30px 0px;
-			box-sizing: border-box;
-		}
-		.profile-user {
-			padding: 60px 30px;
-			line-height: 30px;
-			 font-size: 15px;
-			 font-family: 微软雅黑;
-		}
-		.img-size {
-			width: 150px;
-			height: 150px;
-		}
-		.username-text {
-			font-size: 30px;
-			font-family: 微软雅黑;
-			line-height: 60px;
-		}
-		.moment-time {
-			position: relative;
-			left: 20px;
-			line-height: 30px;
-		}
-		.btn-edit {
-			padding-left: 30px;
-			padding-right: 10px;
-		}
-		.userTitle {
-			line-height: 45px;
-			font-size: 23px;
-			margin: 10px 0;
-		}
-	</style>
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/user.css') }}">
 {% endblock %}
 
 {% block page_content %}
@@ -67,7 +22,6 @@
 		<div style="text-align: center;">
 			<span class="username-text">{{ user.username }}</span>
 		</div>
-
 		<div class="moment-time">
 			{% if user.last_seen %}
 				<span style="margin-right: 6px;">上次登陆时间：</span>{{ moment(user.last_seen).format('YYYY-MM-DD HH:mm') }}
@@ -79,7 +33,7 @@
 				<span style="margin-right: 6px;">注册时间：</span>{{ moment(user.member_since).format('L') }}
 			{% endif %}
 		</div>	
-		</div>	
+		</div><!-- left -->	
 
 		<!-- 用户个人资料内容 -->
 		<div class="profile-right col-md-6">
@@ -111,6 +65,8 @@
 		{% endif %}
 		</div>
 
+		<!-- 登录状态且非个人用户站点才会显示 -->
+		{% if current_user.is_authenticated and not username %}
 		<!-- 编辑用户资料 -->
 		<div>
 			<!-- 只能编辑当前个人用户 -->
@@ -126,8 +82,9 @@
 				</a></span>
 			{% endif %}
 		</div>
-		</div>
-	</div>
+		{% endif %}
+		</div><!-- right -->
+	</div><!-- row -->
 </div>	<!-- end container -->
 
 {% endblock %}

@@ -27,17 +27,17 @@
 		</div>	
 
 		<div class="listBoxCenter">
-			<!-- 单一博客直接显示文章内容否则显示,否则显示摘要片段 -->
+			<!-- 显示博客列表还是博客文章 -->
 			{% if onepost %}
-				<div class="post-body">{{ post.content | safe }}</div>
+			<div class="post-body">{{ post.content | safe }}</div>
 			{% else %}
-				<div class="post-body">{{ post.fragment | safe }}</div>
-			{% endif %}
+			<div class="post-body">{{ post.fragment | safe }}</div>
 			<div class="readMore">
 				<a href="{% if username %}{{ url_for('main.post', id=post.id,username=username) }}{% else %}{{ url_for('main.post',id=post.id) }}{% endif %}" title="{{ post.title }}">
 					<span>+阅读全文</span>
 				</a>
 			</div>
+			{% endif %}
 		</div>
 		
 		<!-- 是否全文查看状态 -->
@@ -66,6 +66,8 @@
 				</span>
 			{% endif %}
 
+			<!-- 个人用户站点下，不显示编辑 -->	
+			{% if not username %}
 			<!-- 当前用户是文章作者 -->
 			{% if current_user == post.author %}
 			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}" style="margin-right: 5px;">
@@ -79,6 +81,7 @@
 			</a>
 			{% endif %}
 			</div>
+			{% endif %}
 		</div>
 		{% endif %}
 	</li><!--listBox-->

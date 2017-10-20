@@ -136,20 +136,21 @@ def ckupload():
 	return form.upload(endpoint=current_app)
 	
 # 关于我	
-@main.route('/user/<username>')
-def user(username):
-	user = User.query.filter_by(username=username).first_or_404()
-	# 返回当前用户的博客文章列表
-	page = request.args.get('page', 1, type=int)
-	pagination = user.posts.order_by(Post.create_time.desc()).paginate(
-			page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-			error_out=False)
-	
-	# 返回当前分页记录
-	posts = pagination.items
+@main.route('/user/<name>')
+def user(name):
+	user = User.query.filter_by(username=name).first_or_404()
+
+	username = request.args.get('username',None)
+	if username:
+		# 增加分类索引
+		categorys = Category.query.\
+			filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+			order_by(Category.name.asc()).all()
+	else:
+		categorys = []
+
 	# 非全文查看状态
-	return render_template('user.html',user=user,onepost=False,posts=posts,
-							pagination=pagination)
+	return render_template('user.html',user=user,categorys=categorys,username=username)
 	
 # 用户个人资料编辑	
 @main.route('/edit-profile',methods=['GET','POST'])
