@@ -116,7 +116,7 @@ def write_post():
 		db.session.commit()
 		return jsonify(id=post.get_id())
 
-	return render_template('write_post.html',form=form,category_form=category_form,tag_form=tag_form,categorys_text=','.join(categorys_text),tags_text=','.join(tags_text))	
+	return render_template('write_post.html',form=form,category_form=category_form,tag_form=tag_form,categorys_text=','.join(categorys_text),tags_text=','.join(tags_text),username=username)	
 
 # 上传文件或者图片
 @main.route('/ckupload/',methods=['GET','POST'])
@@ -240,51 +240,50 @@ def post(id):
 @login_required
 def edit(id):
 	post = Post.query.get_or_404(id)
-	session['username'] = request.args.get('username',None)
-	print 'username xxxxxxxxxxxxxxxx',session.get('username')
 	# 不是管理员或者文章作者返回403 
 	if current_user != post.author and \
 			not current_user.can(Permission.ADMINISTER):
 		abort(403)
-	form = CKEditorPostForm(username=session.get('username'))
+
+	username = request.args.get('username',None)
+	form = CKEditorPostForm(username=username)
 	#if form.validate_on_submit():
 	if request.method=="POST":
-		post.title= form.title.data 
-		post.content = form.ckhtml.data
-		print "In edit-post category = ",request.values.get('category')
-		print "In edit-post tags = ",request.values.getlist('tag')
-		'''
-		In edit-post category =  3
-		In edit-post tags =  [u'4', u'5']
-		'''
-		# 更新摘要
-		if form.summary.data:
-			post.fragment = form.summary.data +' ...'
-		else:
-			post.fragment = Post.gen_fragment(form.ckhtml.data)+' ...'
+		print '-'*60
+		print 'title = ',request.values.get('title')
+		print 'summary = ',request.values.get('summary')
+		print 'category = ',request.values.get('category')
+		print 'tag = ',request.values.getlist('tag')
+		print 'ckhtml = ',request.values.get('ckhtml')
+		print '-'*60
 		
-		# 更新标签列表	
-		ids = request.values.getlist('tag')
-		if ids:
+		# 更新摘要
+		if request.values.get('summary'):
+			post.fragment = request.values.get('summary') +' ...'
+		else:
+			post.fragment = Post.gen_fragment(request.values.get('ckhtml'))+' ...'
+		
+		# 分类(必选)
+		post.category = Category.query.filter_by(name=request.values.get('category')).first()
+
+		# 标签(可选)
+		tag = request.values.getlist('tag')[0].encode('utf-8')
+		print category,tag
+		if tag:
 			tags = list()
-			for id in ids:
-				id = int(id.encode('utf-8'))
-				tag_obj = Tag.query.get(id) 
+			for tag_name in tag.split(','):
+				tag_obj = Tag.query.filter_by(name=tag_name).first()
 				if tag_obj not in tags:
 					tags.append(tag_obj)
-			post.tags = tags		
+				post.tags = tags
 		else:
-			# 清空标签
 			post.tags = []
 
-		# 更新类别
-		category_id = request.values.get('category')
-		post.category = Category.query.get(category_id)
-
 		db.session.add(post)
+		db.session.commit()
 		flash(u'文章已经被更新')
-		print "username -------------->",session.get('username')
-		return redirect(url_for('.post', id=post.id,username=session.get('username')))
+		return jsonify(id=post.get_id())
+
 	form.title.data = post.title
 	form.summary.data = post.fragment
 	form.ckhtml.data = post.content 
@@ -293,8 +292,7 @@ def edit(id):
 	for tag in post.tags:
 		if tag.id not in tag_ids: 
 			tag_ids.append(str(tag.id))
-	print 'username ********************',session.get('username')
-	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids),username=session.get('username'))
+	return render_template('edit_post.html',post=post,form=form,category=category,tag_ids=','.join(tag_ids),username=username))
 
 # 搜索视图函数
 @main.route('/search',methods=['GET','POST'])

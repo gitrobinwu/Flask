@@ -86,7 +86,13 @@
 		//取消
 		$('#cancel_edit_post').click(function(){
 			console.log('------------------ cancel_edit_post -----------------');
-			window.location.href='/edit/'+{{ post.id }}+'?useranme='+"{{ username }}";//跳转到编辑的文章的页面
+			let username = "{{ username }}";
+			if(username){
+				window.location.href='/edit/'+{{ post.id }}+'?useranme='+"{{ username }}";//跳转到编辑的文章的页面
+			}else{
+				window.location.href='/edit/'+{{ post.id }};//跳转到编辑的文章的页面
+				
+			}	
 			console.log('------------------ cancel_edit_post -----------------');
 		});
 
@@ -112,7 +118,39 @@
 				return;
 			}
 
-			$('#post_edit').submit();
+			var category_text = $('#category').select2("data")[0].text;//分类必选
+			var tag_text = new Array();
+			var res = $("#tag").select2("data");//标签可选
+			for(var i=0;i<res.length;i++){
+				console.log(res[i].text);
+				tag_text.push(res[i].text);
+			}	
+			var form_data = {"title": title, "summary": summary, "category": category_text, "tag": tag_text.join(','), "ckhtml": ckhtml};
+			console.log(form_data);
+
+			$.ajax({
+				url: "{{ url_for('.edit') }}",
+				type: "post",
+				data: form_data,
+				success: function(data){
+					console.log("This is OK ---------------------");
+					console.log(data.id);
+					let username = "{{ username }}";
+					if(username){
+						window.location.href='/post/'+data.id+"?username="+username;//跳转到已提交的文章的页面
+					}else{
+						window.location.href='/post/'+data.id;//跳转到已提交的文章的页面
+					}	
+					console.log("This is OK ---------------------");
+				},
+				error: function(err){
+					console.log('this is error -----------------');
+					console.log(err);
+					console.log('this is error ----------------');
+				}
+			});
+
+			//$('#post_edit').submit();
 			console.log('----------------- submit_edit_post -------------------');
 		});
 	});	

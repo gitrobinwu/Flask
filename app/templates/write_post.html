@@ -105,7 +105,12 @@
 		//取消发表
 		$('#cancel_edit_post').click(function(){
 			console.log('------------------ cancel_edit_post -----------------');
-			window.location.href='/write-post';//跳转到写的文章的页面
+			let username = "{{ username }}";
+			if(username){
+				window.location.href='/write-post'+"?username="+username;//跳转到写的文章的页面
+			}else{
+				window.location.href='/write-post';//跳转到写的文章的页面
+			}	
 			console.log('------------------ cancel_edit_post -----------------');
 		});
 
@@ -142,13 +147,18 @@
 			console.log(form_data);
 
 			$.ajax({
-				url: "/write-post",
+				url: "{{ url_for('.write_post') }}",
 				type: "post",
 				data: form_data,
 				success: function(data){
 					console.log("This is OK ---------------------");
 					console.log(data.id);
-					window.location.href='/post/'+data.id;//跳转到已提交的文章的页面
+					let username = "{{ username }}";
+					if(username){
+						window.location.href='/post/'+data.id+"?username="+username;//跳转到已提交的文章的页面
+					}else{
+						window.location.href='/post/'+data.id;//跳转到已提交的文章的页面
+					}	
 					console.log("This is OK ---------------------");
 				},
 				error: function(err){
