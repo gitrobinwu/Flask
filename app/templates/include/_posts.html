@@ -41,7 +41,6 @@
 		</div>
 		
 		<!-- 是否全文查看状态 -->
-		{% if not onepost %}
 		<div class="listBoxBottom">
 			<!-- 标签 -->
 			<div class="listBoxBottomTag" style="flaot: left;">
@@ -68,6 +67,7 @@
 
 			<!-- 个人用户站点下，不显示编辑 -->	
 			{% if not username %}
+			{% if not onepost %}
 			<!-- 当前用户是文章作者 -->
 			{% if current_user == post.author %}
 			<a href="{% if username %}{{ url_for('.edit',id=post.id,username=username) }}{% else %}{{ url_for('.edit',id=post.id) }}{% endif %}" style="margin-right: 5px;">
@@ -82,8 +82,8 @@
 			{% endif %}
 			</div>
 			{% endif %}
+			{% endif %}
 		</div>
-		{% endif %}
 	</li><!--listBox-->
 	{% endfor %}
 </ul>

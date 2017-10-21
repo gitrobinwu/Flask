@@ -29,6 +29,10 @@ class Role(db.Model):
 	# Role对象引用users,Users对象引用role 
 	users = db.relationship('User', backref='role', lazy='dynamic')
 
+	@property
+	def get_users(self):
+		return self.users.all()
+
 	# 要想添加新角色，或者修改角色的权限，修改roles 数组，再运行函数即可。
 	# 注意，匿名角色不需要在数据库中表示出来，这个角色的作用就是为了表示不在数据库中的用户。
 	@staticmethod 
@@ -226,7 +230,7 @@ class User(UserMixin,db.Model):
 		return '<User %r>' % self.username
 
 	def __unicode__(self):
-		return self.username 
+		return '<User %r>' % self.username 
 
 # 匿名用户		
 class AnonymousUser(AnonymousUserMixin):

@@ -19,7 +19,7 @@
 		.login-wrapper {
 			position: absolute;
 			width: 320px;
-			top: 35%;
+			top: 30%;
 			left: 50%;
 			margin-left: -160px;
 			background: #fff;
@@ -63,4 +63,15 @@
 {% endblock %}
 
 
+{% block scripts %}
+{{ super() }}
+<script>
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('#submit').attr('style','width: 90%;');
+		$('#submit').addClass("center-block");
+		$('#submit').addClass("btn-primary");
+	});
+</script>
+{% endblock %}
 

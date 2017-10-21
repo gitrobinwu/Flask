@@ -19,7 +19,7 @@
 		.login-wrapper {
 			position: absolute;
 			width: 320px;
-			top: 35%;
+			top: 20%;
 			left: 50%;
 			margin-left: -160px;
 			background: #fff;
@@ -51,6 +51,18 @@
 			{{ wtf.quick_form(form)}}
 		</form>
 	</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('#submit').attr('style','width: 60%;');
+		$('#submit').addClass("center-block");
+		$('#submit').addClass("btn-primary");
+	});
+</script>
 {% endblock %}
 
 

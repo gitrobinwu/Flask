@@ -164,16 +164,17 @@ def edit_profile():
 
 		# 新增提交用户头像
 		avatar = request.files['avatar']
-		filename = avatar.filename
-		# 上传路径
-		UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
-		filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,current_user.username,filename)
-		avatar.save(filepath)
-		staticfile = u'/static/avatar/{0}_{1}'.format(current_user.username,filename)
-		current_user.real_avatar = staticfile
+		if avatar:
+			filename = avatar.filename
+			# 上传路径
+			UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
+			filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,current_user.username,filename)
+			avatar.save(filepath)
+			staticfile = u'/static/avatar/{0}_{1}'.format(current_user.username,filename)
+			current_user.real_avatar = staticfile
 		db.session.add(current_user)
 		flash(u'您的个人信息已经更新')
-		return redirect(url_for('main.user',username=current_user.username)) # 更新个人资料
+		return redirect(url_for('main.user',name=current_user.username)) # 更新个人资料
 	form.name.data = current_user.name 
 	form.location.data = current_user.location 
 	form.about_me.data = current_user.about_me 
@@ -198,16 +199,17 @@ def edit_profile_admin(id):
 
 		# 新增提交用户头像
 		avatar = request.files['avatar']
-		filename = avatar.filename
-		# 上传路径
-		UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
-		filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,user.username,filename)
-		avatar.save(filepath)
-		staticfile = u'/static/avatar/{0}_{1}'.format(user.username,filename)
-		user.real_avatar = staticfile
+		if avatar:
+			filename = avatar.filename
+			# 上传路径
+			UPLOAD_FOLDER = current_app.static_folder+'/'+'avatar/'
+			filepath = u"{0}{1}_{2}".format(UPLOAD_FOLDER,user.username,filename)
+			avatar.save(filepath)
+			staticfile = u'/static/avatar/{0}_{1}'.format(user.username,filename)
+			user.real_avatar = staticfile
 		db.session.add(user)
 		flash(u'该用户的信息已经更新了')
-		return redirect(url_for('.user',username=user.username))
+		return redirect(url_for('.user',name=user.username))
 	form.email.data = user.email 
 	form.username.data = user.confirmed
 	form.confirmed.data = user.confirmed

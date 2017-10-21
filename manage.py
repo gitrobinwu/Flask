@@ -5,13 +5,10 @@ from app import create_app, db
 from app.models import User, Role,Post,Permission,Category,Tag
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
-import flask_whooshalchemy as whooshalchemy
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
-# 初始化全文搜索索引
-whooshalchemy.whoosh_index(app,Post)
 
 def make_shell_context():
 	"""自动加载环境"""

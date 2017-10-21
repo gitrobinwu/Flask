@@ -14,7 +14,6 @@ class EditProfileForm(FlaskForm):
 	location = StringField(label=u'地址',validators=[Length(0,64)])
 	about_me = TextAreaField(label=u'自我描述')
 	avatar = FileField(u'头像',validators=[
-			FileRequired(),
 			FileAllowed(['jpg','png','jpeg','gif'], u'仅允许上传图片类型文件!')
 		])	
 	submit = SubmitField(label=u'提交')
@@ -31,7 +30,6 @@ class EditProfileAdminForm(FlaskForm):
 	location = StringField(label=u'地址',validators=[Length(0,64)])
 	about_me = TextAreaField(label=u'自我描述')
 	avatar = FileField(u'头像',validators=[
-			FileRequired(),
 			FileAllowed(['jpg','png','jpeg','gif'], u'仅允许上传图片类型文件!')
 		])	
 	submit = SubmitField(label=u'提交')

@@ -16,7 +16,7 @@
 		{% if current_user.can(Permission.WRITE_ARTICLES) %}
 		<div class="row">
 			<!-- 通过列偏移居中 -->
-			<div class="col-md-10 col-md-offset-1">
+			<div class="col-md-9" style="margin-left: 10%;">
 				<form id="post_edit" name="post_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
 					{{ form.csfr_token }}
 					{{ render_field(form.title, class="form-control") }}

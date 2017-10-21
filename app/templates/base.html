@@ -30,7 +30,7 @@
 	<!-- 闪现消息 -->
 	<div class="row">
     {% for message in get_flashed_messages() %}
-		<div class="alert alert-warning">
+		<div class="alert alert-warning center-block" style="width: 85%;">
 			<button type="button" class="close" data-dismiss="alert">&times;</button>{{ message }}
 		</div>
     {% endfor %}

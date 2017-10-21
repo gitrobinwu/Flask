@@ -26,6 +26,9 @@ class Config:
 	# 全文搜索数据库的名称
 	WHOOSH_BASE = os.path.join(basedir, 'search.db')
 
+	# admin site汉化
+	BABEL_DEFAULT_LOCALE = 'zh_CN'
+
 	@staticmethod
 	def init_app(app):
 		pass
