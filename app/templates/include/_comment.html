@@ -1,0 +1,41 @@
+{% if comments %}
+<ul class="commentLayout">
+	{% for comment in comments %}
+	<li class="comment">
+		<!-- 用户头像 -->
+		<div class="comment-top clearfix">
+			<div class="comment-avatar">
+			{% if current_user.is_authenticated %}
+			<a href="{% if username %}{{ url_for('.user',name=comment.author.username,username=username) }}{% else %}{{ url_for('.user',name=comment.author.username) }}{% endif %}">
+				{% if comment.author.real_avatar %}
+				<img src="{{ comment.author.real_avatar }}"  class="img-rounded" alt="user-avatar" style="width:40px;height:40px;">
+				{% else %}
+				<img class="img-rounded" alt="default-user-avatar" src="/static/avatar/default.jpg" style="width:40px;height:40px;">
+				{% endif %}
+			</a>
+			{% else %}
+				<img class="img-rounded" alt="default-user-avatar" src="/static/avatar/default.jpg" style="width:40px;height:40px;">
+			{% endif %}
+			</div>
+			<div class="comment-title">
+				{% if current_user.is_authenticated  %}
+				<div class="comment-author"><a href="{% if username %}{{ url_for('.user',name=comment.author.username,username=username) }}{% else %}{{ url_for('.user',name=comment.author.username) }}{% endif %}">{{ comment.author.username }}</a></div>
+				{% else %}
+				<div class="comment-author"><span style="color: red;">游客</span></div>
+				{% endif %}
+				<div class="comment-date">{{ moment(comment.timestamp).format('YYYY-MM-DD') }}</div>
+			</div>
+		</div>
+
+		<!-- 评论内容 -->
+		<div class="comment-content clearfix">
+			<div class="comment-body">
+				{{ comment.body }}
+			</div>
+		</div>
+	</li>
+	{% endfor %}
+</ul>
+{% endif %}
+
+

@@ -92,6 +92,9 @@ class User(UserMixin,db.Model):
 	### 该用户下建立的标签
 	tags = db.relationship('Tag',backref='author',lazy='dynamic')
 
+	# 该用户发表的评论
+	comments = db.relationship('Comment',backref='author',lazy='dynamic')
+
 	# 返回用户下分类名称集合
 	def get_categorys_text(self):
 		rst = list()
@@ -270,13 +273,6 @@ class Category(db.Model):
 		else:
 			return len(self.posts.all())
 
-	# 返回主页分类对应博客数量	
-	def gateway_posts_length(self):
-		sum = 0
-		for c in Category.query.filter_by(name=self.name).all():
-			sum = sum+len(c.posts.all())
-		return sum	
-
 	def __repr__(self):
 		return '<Category %r>' % self.name
 
@@ -332,6 +328,9 @@ class Post(db.Model):
 			secondary=PostTag,
 			backref=db.backref('posts', lazy='dynamic'),lazy='dynamic')
 
+	# 评论
+	comments = db.relationship('Comment',backref='post',lazy='dynamic')
+
 	def __repr__(self):
 		return '<Post %r>' % self.title
 
@@ -379,4 +378,13 @@ class Post(db.Model):
 		text = re.sub(ur'\s+', ' ', node.text_content()).strip()
 		return text[:size]
 
+class Comment(db.Model):
+	__tablename__ = 'comments'
+	id = db.Column(db.Integer,primary_key=True)
+	body = db.Column(db.Text)
+	timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
+	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
+	post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
 
+
+		

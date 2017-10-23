@@ -1,7 +1,13 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% from 'include/_macros.html' import pagination_widget %}
 
 {% block title %}{{ post.title }}{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/comment.css') }}">
+{% endblock %}
 
 <!-- 显示文章内容 -->
 {% block page_content %}
@@ -10,6 +16,32 @@
 	<div class="col-xs-8 col-sm-8 col-md-8 blog-main">
 		<!-- 博客文章列表 -->
 		{% include 'include/_posts.html' %}
+
+		<!-- 博客评论 -->
+		<div id="comments">
+			<form id="edit_comment" name="edit_comment" role="form" action="" method="post">
+				{{ form.csfr_token }}
+				{{ form.hidden_tag() }}
+				<div class="form-group">		
+					{{ form.body(class="form-control center-block commentBody",rows=6) }}
+				</div>	
+			</form>	
+			<button type="button" id="submit_edit_comment" class="btn btn-primary btn-sm" onclick="return false;">发表评论</button>
+		</div>
+
+		<!-- 显示评论列表 -->
+		{% include 'include/_comment.html' %}
+
+		<!-- 显示评论分页 -->
+		{% if pagination %}
+		<div class="pagination">
+			{% if username %}
+			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#comments',username=username)}}
+			{% else %}
+			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#comments') }}
+			{% endif %}
+		</div>
+		{% endif %}
 	</div><!-- blog-main-->
 
 	<div class="col-xs-3 col-sm-3 col-md-3 blog-sidebar">
@@ -19,4 +51,24 @@
 </div><!--container-->
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+	/*文档就绪事件*/
+	$(document).ready(function(){
+		$('#submit_edit_comment').click(function(){
+			var body = $('#body').val();
 
+			//验证表单
+			if(!body){
+				alert("必须填写评论内容");
+				$('#body').focus();//获取焦点 
+				return;
+			}
+
+			//提交表单
+			$('#edit_comment').submit();
+		});
+	});		
+</script>
+{% endblock %}

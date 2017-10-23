@@ -92,4 +92,9 @@ class CKEditorPostForm(FlaskForm,CKEditor):
 									filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
 									order_by(Tag.id.asc()).all() ]
 
-	
+
+# 评论表单
+class CommentForm(FlaskForm):
+	body = TextAreaField(label=u'评论',validators=[ DataRequired() ])
+
+

@@ -27,7 +27,7 @@
 			{% if username %}
 				{% if categorys %}
 				{% for category in categorys %}
-				<li><a href="{{ url_for('.category',name=category.name,username=username) }}" title="{{ category.name }}">{{ category.name }}</a></li>
+				<li><a href="{{ url_for('.category',name=category.name,user=username) }}" title="{{ category.name }}">{{ category.name }}</a></li>
 				{% endfor %}
 				{% endif %}
 			{% endif %}

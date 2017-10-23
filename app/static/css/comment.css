@@ -1,0 +1,106 @@
+/*提交那妞*/
+#submit_edit_comment {
+	cursor: pointer;
+	height: 35px;
+	width: 100px;
+	vertical-align: middle;
+	color: #fff;
+	font-size: 14px;
+	border: none;
+	background: #4F4E4C;
+	margin-left: 19px;
+}
+
+/*评论区域*/
+#comments {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background: #fff;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	clear: both;
+	overflow: hidden;
+	border: 1px solid #E7E7E8;
+}
+.commentBody {
+	width: 95%;
+	padding: 10px;
+	font-size: 14px;
+	line-height: 25px;
+	overflow: hidden;
+	background: #f8f7f6;
+	border: 1px solid #D6D3D3;
+}
+
+/*评论显示区域*/
+ul.commentLayout {
+	list-style-type: none;
+	padding: 0px;
+	padding-bottom: 50px;
+	padding-top: 20px;
+	border: 1px solid #E7E7E8;
+	background: #fff;
+	overflow: hidden;
+	clear: both;
+}
+/*显示块*/
+li.comment {
+	width: 98%;
+	margin: 0px auto;
+	background: #fff;
+	border-bottom: 1px dashed #ccc;
+	overflow: hidden;
+	clear: both;
+	padding-left: 15px;
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+}
+
+.comment-top {
+	width: 300px;
+	margin-bottom: 20px;
+}
+
+.comment-avatar {
+	float: left;
+	margin-right: 15px;
+	display: inline-block;
+}
+.comment-title {
+	display: inline-block;
+	float: left;
+}
+.comment-date {
+	color: #999;
+	font-size: 12px;
+	font-family: Georgia;
+	margin-top: 5px;
+}
+
+.comment-body {
+	width: 96%;
+	color: #000;
+	font-size: 14px;
+	line-height: 28px;
+	margin: 10px auto;
+	clear: both;
+	word-break: break-all;
+}
+
+.comment-replay {
+	float: left;
+	width: 700px;
+	height: 30px;
+	line-height: 25px;
+	text-align: right;
+}
+
+.comment-replay a {
+	color: #3354AA;
+	font-size: 11px;
+	text-decoration: none
+}
+
+
+
+

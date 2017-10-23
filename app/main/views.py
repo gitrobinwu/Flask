@@ -4,8 +4,8 @@ from flask import jsonify
 from flask_login import login_required,current_user 
 from . import main
 from .. import db
-from ..models import User,Role,Permission,Post,Category,Tag
-from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm,CategoryFrom,TagForm
+from ..models import User,Role,Permission,Post,Category,Tag,Comment
+from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm,CategoryFrom,TagForm,CommentForm
 from ..decorators import admin_required 
 from sqlalchemy import or_,and_,func
 
@@ -217,13 +217,40 @@ def edit_profile_admin(id):
 	return render_template('edit_profile.html',form=form)
 
 # 文章的固定链接
-@main.route('/post/<int:id>')
+@main.route('/post/<int:id>',methods=['GET','POST'])
 def post(id):
 	post = Post.query.get_or_404(id)
 	# 更新该篇博文的浏览量计数
 	post.add_viewcount()
-
 	username = request.values.get('username',None)
+
+	# 提交评论 
+	form = CommentForm()
+	if form.validate_on_submit():
+		if current_user.is_authenticated:
+			comment = Comment(body=form.body.data,
+						post=post,
+						author=current_user._get_current_object())
+		else:
+			comment = Comment(body=form.body.data,
+						post=post)
+		db.session.add(comment)
+		if username:
+			return redirect(url_for('.post',id=post.id,page=-1,username=username))
+		else:
+			return redirect(url_for('.post',page=-1,id=post.id))
+			
+	page = request.args.get('page',1,type=int)	
+	if page == -1:
+		page = (post.comments.count() - 1) // \
+			current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+	pagination = post.comments.order_by(Comment.timestamp.desc()).paginate(
+			page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+			error_out=False)
+				
+	comments = pagination.items
+	##
+
 	# username 的主要作用是改变路由的访问方向
 	if username:
 		gateway = False
@@ -250,7 +277,8 @@ def post(id):
 	
 	# 全文查看状态
 	return render_template('post.html',onepost=True,post=post,posts=[post],
-			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
+			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway,
+			form=form,comments=comments,pagination=pagination)
 
 # 编辑文章
 @main.route('/edit/<int:id>',methods=['GET','POST'])

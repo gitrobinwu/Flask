@@ -22,6 +22,8 @@ class Config:
 	
 	# 默认每页显示的记录数量
 	FLASKY_POSTS_PER_PAGE = 10
+	# 默认每页显示评论数量
+	FLASKY_COMMENTS_PER_PAGE = 30
 	
 	# 全文搜索数据库的名称
 	WHOOSH_BASE = os.path.join(basedir, 'search.db')
