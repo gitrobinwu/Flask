@@ -1,11 +1,14 @@
 alembic==0.9.5
 argparse==1.4.0
+Babel==2.5.1
 beautifulsoup4==4.6.0
 blinker==1.3
 bs4==0.0.1
 click==6.7
 dominate==2.3.1
 Flask==0.10.1
+Flask-Admin==1.5.0
+Flask-BabelEx==0.9.3
 Flask-Bootstrap==3.3.7.1
 Flask-Login==0.4.0
 Flask-Mail==0.9.1
@@ -30,8 +33,10 @@ mysqlclient==1.3.12
 ordereddict==1.1
 python-dateutil==2.6.1
 python-editor==1.0.3
+pytz==2017.2
 readline==6.2.4.1
 six==1.11.0
+speaklater==1.3
 SQLAlchemy==1.1.14
 visitor==0.1.3
 webencodings==0.5.1
