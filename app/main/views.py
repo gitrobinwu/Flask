@@ -7,8 +7,7 @@ from .. import db
 from ..models import User,Role,Permission,Post,Category,Tag
 from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CKEditorPostForm,CategoryFrom,TagForm
 from ..decorators import admin_required 
-from sqlalchemy import or_
-from sqlalchemy import and_
+from sqlalchemy import or_,and_,func
 
 # 用户个人站点 
 # http://10.0.1.161:5008/?username=robin
@@ -27,7 +26,7 @@ def index():
 				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 				error_out=False)
 	else:
-		#按时间排序返回博客文章
+		#按时间排序返回所有博客文章
 		pagination = Post.query.order_by(Post.create_time.desc()).paginate(
 				page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 				error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
@@ -37,6 +36,7 @@ def index():
 
 	
 	if username:
+		gateway = False 
 		# 返回指定用户发表的最新文章列表
 		latest_posts = Post.query.\
 					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
@@ -49,27 +49,19 @@ def index():
 		tags = Tag.query.\
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
+		print categorys
 	else:
-		# 所有用户的文章列表
-		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		if current_user.is_authenticated:
-			# 当前登录用户的分类
-			categorys = Category.query.\
-						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-						order_by(Category.name.asc()).all()
-			# 当前登录用户的标签
-			tags = Tag.query.\
-					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-					order_by(Tag.name.asc()).all()
-		else:
-			categorys = []
-			tags = []
-		
-
+		gateway = True
+		# 返回热门文章列表(按访问量)
+		latest_posts = Post.query.order_by(Post.viewcount.desc()).limit(10).all()
+		# 返回热门分类
+		categorys = db.session.query(Category).group_by(Category.name).order_by(func.count(Category.name).desc()).limit(6).all()
+		# 返回热门标签
+		tags = db.session.query(Tag).group_by(Tag.name).order_by(func.count(Tag.name).desc()).limit(20).all()
 	
 	# 非全文查看状态
 	return render_template('index.html',onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
 
 # 写博客
 # 添加标签和分类
@@ -106,7 +98,10 @@ def write_post():
 		ckhtml =  dsads
 		'''
 		# 分类(必选)
-		category = Category.query.filter_by(name=request.values.get('category')).first()
+		# 将分类定位到当前登录用户私有命名空间下
+		category = Category.query.\
+				   filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+				   filter_by(name=request.values.get('category')).first()
 
 		# 标签(可选)
 		tag = request.values.getlist('tag')[0].encode('utf-8')
@@ -114,7 +109,9 @@ def write_post():
 		if tag:
 			tags = list()
 			for tag_name in tag.split(','):
-				tag_obj = Tag.query.filter_by(name=tag_name).first()
+				tag_obj = Tag.query.\
+						  filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						  filter_by(name=tag_name).first()
 				if tag_obj not in tags:
 					tags.append(tag_obj)		
 			post = Post(title=form.title.data,content=form.ckhtml.data,fragment=fragment+' ...',
@@ -229,6 +226,7 @@ def post(id):
 	username = request.values.get('username',None)
 	# username 的主要作用是改变路由的访问方向
 	if username:
+		gateway = False
 		# 返回指定用户发表的最新文章列表
 		latest_posts = Post.query.\
 					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
@@ -242,23 +240,17 @@ def post(id):
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
 	else:
-		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		if current_user.is_authenticated:
-			# 当前登录用户的分类
-			categorys = Category.query.\
-						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-						order_by(Category.name.asc()).all()
-			# 当前登录用户的标签
-			tags = Tag.query.\
-					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-					order_by(Tag.name.asc()).all()
-		else:
-			categorys = []
-			tags = []
+		gateway = True
+		# 返回热门文章列表(按访问量)
+		latest_posts = Post.query.order_by(Post.viewcount.desc()).limit(10).all()
+		# 返回热门分类
+		categorys = db.session.query(Category).group_by(Category.name).order_by(func.count(Category.name).desc()).limit(6).all()
+		# 返回热门标签
+		tags = db.session.query(Tag).group_by(Tag.name).order_by(func.count(Tag.name).desc()).limit(20).all()
 	
 	# 全文查看状态
 	return render_template('post.html',onepost=True,post=post,posts=[post],
-			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
+			categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
 
 # 编辑文章
 @main.route('/edit/<int:id>',methods=['GET','POST'])
@@ -293,14 +285,18 @@ def edit(id):
 			post.fragment = Post.gen_fragment(request.values.get('ckhtml'))+' ...'
 		
 		# 分类(必选)
-		post.category = Category.query.filter_by(name=request.values.get('category')).first()
+		post.category = Category.query.\
+						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						filter_by(name=request.values.get('category')).first()
 
 		# 标签(可选)
 		tag = request.values.getlist('tag')[0].encode('utf-8')
 		if tag:
 			tags = list()
 			for tag_name in tag.split(','):
-				tag_obj = Tag.query.filter_by(name=tag_name).first()
+				tag_obj = Tag.query.\
+						  filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
+						  filter_by(name=tag_name).first()
 				if tag_obj not in tags:
 					tags.append(tag_obj)
 				post.tags = tags
@@ -343,12 +339,14 @@ def search_results(keyword):
 
 	username = request.args.get('username',None)
 	if username:
-		pagination = Post.query.\
-				 whoosh_search(keyword).\
-				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
-				 order_by(Post.create_time.desc()).paginate(
-						 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-						 error_out=False)
+		# 如果查询字符串中用户名非空，返回用户个人站点
+		# 在用户发表过的文章列表中查询指定关键字的文章列表
+		user = User.query.filter_by(username=username).first_or_404()
+		pagination = user.posts.\
+					 whoosh_search(keyword).\
+					 order_by(Post.create_time.desc()).paginate(
+							page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+							error_out=False)
 	else:
 		pagination = Post.query.\
 				 whoosh_search(keyword).\
@@ -360,6 +358,7 @@ def search_results(keyword):
 	posts = pagination.items
 
 	if username:
+		gateway = False 
 		# 返回指定用户发表的最新文章列表
 		latest_posts = Post.query.\
 					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
@@ -373,23 +372,17 @@ def search_results(keyword):
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
 	else:
-		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		if current_user.is_authenticated:
-			# 当前登录用户的分类
-			categorys = Category.query.\
-						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-						order_by(Category.name.asc()).all()
-			# 当前登录用户的标签
-			tags = Tag.query.\
-					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-					order_by(Tag.name.asc()).all()
-		else:
-			categorys = []
-			tags = []
+		gateway = True
+		# 返回热门文章列表(按访问量)
+		latest_posts = Post.query.order_by(Post.viewcount.desc()).limit(10).all()
+		# 返回热门分类
+		categorys = db.session.query(Category).group_by(Category.name).order_by(func.count(Category.name).desc()).limit(6).all()
+		# 返回热门标签
+		tags = db.session.query(Tag).group_by(Tag.name).order_by(func.count(Tag.name).desc()).limit(20).all()
 		
 	# 列表形式显示文章-->只显示摘要
 	return render_template('search_results.html',query=keyword,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
 
 
 # 用户--> 分类/标签建立一对多
@@ -425,29 +418,35 @@ def new_tag():
 @main.route('/category/<name>')
 def category(name):
 	print "category =============== ",name;
-	#按时间排序返回博客文章
-	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
-	category = Category.query.filter_by(name=name).first()
-	username = request.args.get('username',None)
-	print "username ===============",username
+	page = request.args.get('page',1,type=int) 
 
+	username = request.args.get('username',None)
 	if username:
+		print "username 1111111111 == ",username
+		# 返回用户下指定名称的分类
+		category = Category.query.\
+				   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				   filter_by(name=name).first()
+		print category,category.name,category.author.username
+		# 获取该分类下的文章列表
 		pagination = category.posts.\
-				 filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 				 order_by(Post.create_time.desc()).paginate(
 					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+					error_out=False) 
 	else:
-		pagination = category.posts.\
-				 order_by(Post.create_time.desc()).paginate(
+		# 返回热门分类下的所有文章列表
+		pagination = Post.query.filter(Post.category_id.in_(db.session.query(Category.id).filter_by(name=name).all())).\
+				order_by(Post.create_time.desc()).paginate(
 					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+					error_out=False) 
 		
-	
 	# 返回当前分页记录
 	posts = pagination.items
-
+	
+	gateway = False
 	if username:
+		gateway = False
 		# 返回指定用户发表的最新文章列表
 		latest_posts = Post.query.\
 					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
@@ -461,49 +460,54 @@ def category(name):
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
 	else:
-		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		if current_user.is_authenticated:
-			# 当前登录用户的分类
-			categorys = Category.query.\
-						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-						order_by(Category.name.asc()).all()
-			# 当前登录用户的标签
-			tags = Tag.query.\
-					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-					order_by(Tag.name.asc()).all()
-		else:
-			categorys = []
-			tags = []
+		gateway = True 
+		# 返回热门文章列表(按访问量)
+		latest_posts = Post.query.order_by(Post.viewcount.desc()).limit(10).all()
+		# 返回热门分类
+		categorys = db.session.query(Category).group_by(Category.name).order_by(func.count(Category.name).desc()).limit(6).all()
+		# 返回热门标签
+		tags = db.session.query(Tag).group_by(Tag.name).order_by(func.count(Tag.name).desc()).limit(20).all()
 
 	# 非全文查看状态
 	return render_template('category.html',name=name,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
 
+# 获取用户各自标签对应的文章	
+def tag_post_ids(name):
+	posts = list()
+	for t in Tag.query.filter_by(name=name).all():
+		posts.extend(t.posts.all())
+	return [p.id for p in posts]
+	
 # 标签路由
 @main.route('/tag/<name>')
 def tag(name):
 	print "tag ================ ",name
-	username = request.args.get('username',None)
-	#按时间排序返回博客文章
 	page = request.args.get('page',1,type=int) # type=int 保证参数无法转换成整数时，返回默认值。
-	tag = Tag.query.filter_by(name=name).first()
+
+	username = request.args.get('username',None)
 	if username:
+		tag = Tag.query.\
+					filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+					filter_by(name=name).first()
 		pagination = tag.posts.\
-				filter_by(author=User.query.filter_by(username=username).first_or_404()).\
+				   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 				 order_by(Post.create_time.desc()).paginate(
 					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+					error_out=False) 
 	else:
-		pagination = tag.posts.\
-				 order_by(Post.create_time.desc()).paginate(
-					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-					error_out=False) # error_out=True页数超出范围返回404错误,False返回空列表
+		# 返回热门标签文章列表
+		pagination = Post.query.filter(Post.id.in_(tag_post_ids(name))).\
+						 order_by(Post.create_time.desc()).paginate(
+							page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+							error_out=False) 
 		
 
 	# 返回当前分页记录
 	posts = pagination.items
 
 	if username:
+		gateway=False
 		# 返回指定用户发表的最新文章列表
 		latest_posts = Post.query.\
 					   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
@@ -517,23 +521,16 @@ def tag(name):
 			   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 			   order_by(Tag.name.asc()).all()
 	else:
-		latest_posts = Post.query.order_by(Post.create_time.desc()).limit(10).all()
-		if current_user.is_authenticated:
-			# 当前登录用户的分类
-			categorys = Category.query.\
-						filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-						order_by(Category.name.asc()).all()
-			# 当前登录用户的标签
-			tags = Tag.query.\
-					filter_by(author=User.query.filter_by(username=current_user.username).first_or_404()).\
-					order_by(Tag.name.asc()).all()
-		else:
-			categorys = []
-			tags = []
+		gateway=True
+		# 返回热门文章列表(按访问量)
+		latest_posts = Post.query.order_by(Post.viewcount.desc()).limit(10).all()
+		# 返回热门分类
+		categorys = db.session.query(Category).group_by(Category.name).order_by(func.count(Category.name).desc()).limit(6).all()
+		# 返回热门标签
+		tags = db.session.query(Tag).group_by(Tag.name).order_by(func.count(Tag.name).desc()).limit(20).all()
 
 	# 非全文查看状态
 	return render_template('tag.html',name=name,onepost=False,posts=posts,
-							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username)
-
+							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
 
 

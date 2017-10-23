@@ -263,8 +263,19 @@ class Category(db.Model):
 	def get_name(self):
 		return self.name
 
-	def get_posts_length(self):
-		return len(self.posts.all())
+	# 返回用户分类对应的博客文章列表	
+	def get_posts_length(self,username):
+		if username:
+			return len(self.posts.filter_by(author=User.query.filter_by(username=username).first_or_404()).all())
+		else:
+			return len(self.posts.all())
+
+	# 返回主页分类对应博客数量	
+	def gateway_posts_length(self):
+		sum = 0
+		for c in Category.query.filter_by(name=self.name).all():
+			sum = sum+len(c.posts.all())
+		return sum	
 
 	def __repr__(self):
 		return '<Category %r>' % self.name

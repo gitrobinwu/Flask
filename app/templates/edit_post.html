@@ -8,9 +8,6 @@
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='select2-4.0.4/dist/css/select2.min.css') }}">
 <style>
-	.edit-bottom {
-		margin-bottom: 60px;
-	}
 	.edit-main {
 		width: 90%;
 		margin-top: 20px;
@@ -20,15 +17,7 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="container">
-	<div class="row">
-		<div class="title-header">
-			<p class="title-font">编辑博客</p>
-		</div>
-	</div>	
-</div>	
-
-<div class="container container-wrapper edit-bottom">
+<div class="container" style="width: 75%; background: #fff; margin-bottom: 60px;">
 	<!-- 文章作者或者管理员可以编辑 -->
 	{% if current_user == post.author or current_user.can(Permission.ADMINISTER) %}			
 	<div class="row">	

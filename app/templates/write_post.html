@@ -10,13 +10,13 @@
 {% endblock %}
 
 {% block page_content %}
-	<div class="container" style="margin-bottom: 30px;">
+	<div class="container" style="width: 75%; background: #fff; margin-bottom: 60px;">
 		<!-- 博客提交表单 -->
 		<!-- 检测当前用户是否有写权限 -->
 		{% if current_user.can(Permission.WRITE_ARTICLES) %}
 		<div class="row">
 			<!-- 通过列偏移居中 -->
-			<div class="col-md-9" style="margin-left: 10%;">
+			<div class="center-block" style="width: 90%; margin-top: 20px; margin-bottom: 20px;">
 				<form id="post_edit" name="post_edit" role="form" onkeydown="if(event.keyCode==13){return false;}">
 					{{ form.csfr_token }}
 					{{ render_field(form.title, class="form-control") }}
@@ -36,7 +36,7 @@
 						</div>
 					</div>
 			
-					<div class="clearfix" style="width: 60%;">
+					<div class="clearfix" style="width: 70%;">
 						<div class="form-group" style="float: left;">
 							{{ form.tag.label(style="margin-right: 10px;") }}
 							{{ form.tag(class="form-control", style="width: 400px;") }}

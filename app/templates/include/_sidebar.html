@@ -10,7 +10,11 @@
 {% if categorys %}
 <div class="sidebarBox">
 	<div class="boxTop">
+		{% if gateway %}
+		<span>热门分类</span>
+		{% else %}
 		<span>日志分类</span>
+		{% endif %}
 	</div>
 	<div class="boxClassify">
 		<ul class="sidebarList">
@@ -18,7 +22,7 @@
 			<li>
 				<a href="{% if username %}{{ url_for('.category',name=category.name,username=username) }}{% else %}{{ url_for('.category',name=category.name) }}{% endif %}" title="{{ category.name }}">
 					<span>{{ category.name }}</span>
-					<span class="badge" style="margin-left: 5px;">{{ category.get_posts_length() }}</span>	
+					<span class="badge" style="margin-left: 5px;">{{ category.get_posts_length(username) }}</span>
 				</a>
 			</li>
 			{% endfor %}
@@ -31,7 +35,11 @@
 {% if latest_posts %}
 <div class="sidebarBox">
 	<div class="boxTop">
+		{% if gateway %}
+		<span>热门文章</span>
+		{% else %}
 		<span>最新文章</span>
+		{% endif %}
 	</div>
 	<div class="boxContent">
 		<ul class="sidebarList">
@@ -51,7 +59,11 @@
 {% if tags %}
 <div class="sidebarBox">
 	<div class="boxTop clearfix">
-		<span>标签</span>
+		{% if gateway %}
+		<span>热门标签</span>
+		{% else %}
+		<span>日志标签</span>
+		{% endif %}
 	</div>
 	<div class="boxTag clearfix">
 		<ul class="sidebarList clearfix">
