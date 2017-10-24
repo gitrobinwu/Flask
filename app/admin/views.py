@@ -3,12 +3,12 @@ from flask import redirect,url_for,request,flash
 from flask_admin import BaseView, expose,AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.fileadmin import FileAdmin
-from ..models import Role,User,Post,Category,Tag
+from ..models import Role,User,Post,Category,Tag,Comment
 from .. import db
 from flask_login import current_user 
 import os
 
-static_basedir = r'/home/robin/flask/Flask/project/app/static'
+static_basedir = r'/home/robin/flask/dev-flask/project/app/static'
 
 
 # 首页路由 /admin		
@@ -97,6 +97,16 @@ class CustomTagView(CustomViewBase):
 	}
 	column_searchable_list = ('name',)	
 
+class CustomCommentView(CustomViewBase):
+	can_create = False
+	column_list = ('id','body','timestamp')
+	column_labels = {
+		'id': u'序号',
+		'body': u'内容',
+		'timestamp': u'发表时间'
+	}
+	column_searchable_list = ('body',)
+
 # 添加视图
 def admin_site(endpoint):
 	# 增加模型视图
@@ -105,6 +115,7 @@ def admin_site(endpoint):
 	endpoint.add_view(CustomPostView(Post,db.session,name=u"文章"))
 	endpoint.add_view(CustomCategoryView(Category,db.session,name=u"分类"))
 	endpoint.add_view(CustomTagView(Tag,db.session,name=u"标签"))
+	endpoint.add_view(CustomCommentView(Comment,db.session,name=u"评论"))
 
 	# 增加文件管理
 	endpoint.add_view(FileAdmin(static_basedir,name=u"管理文件"))	
