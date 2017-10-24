@@ -1,4 +1,4 @@
-flask/*.py[cod]
-flask/migrations
-flask/search.db
+project/*.py[cod]
+project/migrations
+project/search.db
 venv
