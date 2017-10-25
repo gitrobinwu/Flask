@@ -217,28 +217,15 @@ def edit_profile_admin(id):
 	return render_template('edit_profile.html',form=form)
 
 # 文章的固定链接
-@main.route('/post/<int:id>',methods=['GET','POST'])
+@main.route('/post/<int:id>')
 def post(id):
 	post = Post.query.get_or_404(id)
-	# 更新该篇博文的浏览量计数
+	# 更新该篇博文的阅读计数
 	post.add_viewcount()
 	username = request.values.get('username',None)
 
 	# 提交评论 
 	form = CommentForm()
-	if form.validate_on_submit():
-		if current_user.is_authenticated:
-			comment = Comment(body=form.body.data,
-						post=post,
-						author=current_user._get_current_object())
-		else:
-			comment = Comment(body=form.body.data,
-						post=post)
-		db.session.add(comment)
-		if username:
-			return redirect(url_for('.post',id=post.id,page=-1,username=username))
-		else:
-			return redirect(url_for('.post',page=-1,id=post.id))
 			
 	page = request.args.get('page',1,type=int)	
 	if page == -1:
@@ -524,7 +511,7 @@ def tag(name):
 					page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
 					error_out=False) 
 	else:
-		# 返回热门标签文章列表
+		# 返回热门标签对应的文章列表
 		pagination = Post.query.filter(Post.id.in_(tag_post_ids(name))).\
 						 order_by(Post.create_time.desc()).paginate(
 							page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
@@ -560,5 +547,64 @@ def tag(name):
 	# 非全文查看状态
 	return render_template('tag.html',name=name,onepost=False,posts=posts,
 							pagination=pagination,categorys=categorys,latest_posts=latest_posts,tags=tags,username=username,gateway=gateway)
+
+
+# 评论支持，反对路由
+@main.route('/comment/<int:id>')
+def comment(id):
+	comment = Comment.query.get(id)
+	fb = request.args.get('fb',None).encode('utf-8')
+	
+	print "fb=====================",fb
+	if fb=="goodfb":
+		comment.add_goodcount()
+	if fb=="badfb":
+		comment.add_badcount()
+
+	# 服务器返回最新的goodcount,badcount
+	return jsonify(goodcount=comment.goodcount,badcount=comment.badcount)
+
+# 写评论
+@main.route('/write_comment',methods=['GET','POST'])
+def write_comment():
+	postid = request.args.get('postid',None)
+	post = Post.query.get(int(postid))
+	username = request.args.get('username',None)
+
+	if request.method=="POST":
+		print 'body = ',request.values.get('body')
+		print 'replay_id =',request.values.get('replay_id')
+		body = request.values.get('body')
+		replay_id = request.values.get('replay_id')
+		print "replay_id =================== ",replay_id
+		# 回复指定id评论
+		if replay_id:
+			replaycomment = Comment.query.get(int(replay_id))
+			# 设置回复内容
+			body = u'''
+			<span>@%s</span><br/>
+			<fieldset class="quote_fieldset">
+				<legend class="quote_legend">引用</legend>
+				<span>%s</span>
+			</fieldset><br/>
+			<span style="color: red; margin-right: 3px;">回复：</span><span>%s</span>
+			''' % (replaycomment.author.username,replaycomment.body,body)
+		else:
+			body = u'''
+			<span>{0}</span>
+			'''.format(body)
+		
+		if current_user.is_authenticated:
+			comment = Comment(body=body,post=post,author=current_user._get_current_object())
+		else:
+			comment = Comment(body=body,post=post)
+		db.session.add(comment)
+		db.session.commit()
+		return jsonify(id=post.id)
+	
+	if username:
+		return redirect(url_for('.post',id=post.id,username=username)+'#postcomment')
+	else:
+		return redirect(url_for('.post',id=post.id)+'#postcomment')
 
 

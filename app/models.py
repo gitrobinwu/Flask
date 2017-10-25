@@ -315,7 +315,7 @@ class Post(db.Model):
 	title = db.Column(db.String(64)) # 标题
 	content = db.Column(db.Text) # 内容
 	fragment = db.Column(db.Text) # 内容片段，用于主页显示 
-	viewcount = db.Column(db.Integer,default=0)
+	viewcount = db.Column(db.Integer,default=0) # 阅读量
 	create_time = db.Column(db.DateTime,index=True,default=datetime.utcnow) # 时间
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 
@@ -381,10 +381,21 @@ class Post(db.Model):
 class Comment(db.Model):
 	__tablename__ = 'comments'
 	id = db.Column(db.Integer,primary_key=True)
-	body = db.Column(db.Text)
+	body = db.Column(db.Text) # 评论内容
 	timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
 	author_id = db.Column(db.Integer,db.ForeignKey('users.id'))
 	post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
+	goodcount = db.Column(db.Integer,default=0) # 支持
+	badcount = db.Column(db.Integer,default=0) # 反对
+
+	def add_goodcount(self):
+		self.goodcount +=1
+		db.session.add(self)
+		db.session.commit()
+
+	def add_badcount(self):
+		self.badcount +=1
+		db.session.add(self)
+		db.session.commit()
 
 
-		

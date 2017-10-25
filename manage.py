@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 import os
 from app import create_app, db
-from app.models import User, Role,Post,Permission,Category,Tag,PostTag
+from app.models import User, Role,Post,Permission,Category,Tag,PostTag,Comment
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
 
@@ -21,6 +21,7 @@ def make_shell_context():
 			Category=Category,
 			Tag=Tag,
 			PostTag=PostTag,
+			Comment=Comment,
 			Permission=Permission,
 		)
 

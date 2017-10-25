@@ -18,7 +18,7 @@
 		{% include 'include/_posts.html' %}
 
 		<!-- 博客评论 -->
-		<div id="comments">
+		<div id="postcomment">
 			<form id="edit_comment" name="edit_comment" role="form" action="" method="post">
 				{{ form.csfr_token }}
 				{{ form.hidden_tag() }}
@@ -30,15 +30,17 @@
 		</div>
 
 		<!-- 显示评论列表 -->
-		{% include 'include/_comment.html' %}
+		<div id="commentList">
+			{% include 'include/_comment.html' %}
+		</div>
 
 		<!-- 显示评论分页 -->
 		{% if pagination %}
 		<div class="pagination">
 			{% if username %}
-			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#comments',username=username)}}
+			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#commentList',username=username)}}
 			{% else %}
-			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#comments') }}
+			{{ pagination_widget(pagination,'.post',id=post.id,fragment='#commentList') }}
 			{% endif %}
 		</div>
 		{% endif %}
@@ -65,10 +67,81 @@
 				$('#body').focus();//获取焦点 
 				return;
 			}
+			
+			//获取回复评论的cookie
+			var replay_id=getCookie("replaycomment");
+			//删除cookie
+			document.cookie = "replaycomment=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
+			var form_data = {'body': body, 'replay_id': replay_id}	
+			$.ajax({
+				url: "{{ url_for('.write_comment',postid=post.id,username=username) }}",
+				type: "post",
+				data: form_data,
+				success: function(data){
+					console.log("This is OK ---------------------");
+					console.log(data);
+					let username = "{{ username }}";
+					if(username && username!="None"){
+						window.location.href='/post/'+data.id+"?username="+username;
+					}else{
+						window.location.href='/post/'+data.id;
+					}	
+					console.log("This is OK ---------------------");		
+				},
+				error: function(err){
+					console.log('this is error -----------------');
+					console.log(err);
+					console.log('this is error ----------------');
+				}
+			});	
 			//提交表单
-			$('#edit_comment').submit();
+			//$('#edit_comment').submit();
 		});
 	});		
+
+	//评论支持，反对
+	function postBadGood(fb,id){
+		var is_fb =getCookie("fbgoodbad"+id);
+		console.log("id ==========="+id);
+		console.log("is_fb ============== "+is_fb);
+		if(is_fb){
+			alert("你刚才已经表决过了!");
+			return;
+		}
+		$.ajax({
+			url: "/comment/"+id+"?fb="+fb,
+			type: "get",
+			data: {},
+			success: function(data){
+				console.log("This is OK ---------------------");
+				console.log(data);
+				console.log("id============"+id);
+				if(fb=='goodfb'){
+					//修改支持数
+					$('.goodcount'+id).text('['+data.goodcount+']');
+				}else if(fb=='badfb'){
+					//$('#badfb'+'id'+' span').text('['+data.badcount+']');	
+					//修改反对数
+					$('.badcount'+id).text('['+data.badcount+']');
+				}	
+				document.cookie="fbgoodbad"+id+"="+id;//设置cookie确定客户端是否已经发表过了 
+				console.log("This is OK ---------------------");
+			},
+			error: function(err){
+				console.log('this is error -----------------');
+				console.log(err);
+				console.log('this is error ----------------');
+			}
+		});	
+	}
+
+	//回复
+	function quoteComment(id){
+		//先将要回复评论的id存储到cookie
+		document.cookie="replaycomment="+id;
+	}
 </script>
 {% endblock %}
+
+

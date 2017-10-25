@@ -15,9 +15,9 @@
 		{% if not onepost and pagination %}	
 			<div class="pagination">
 			{% if username %}
-			{{ pagination_widget(pagination,'.category',username=usernamme)}}
+			{{ pagination_widget(pagination,'.tag',name=name,username=usernamme)}}
 			{% else %}
-			{{ pagination_widget(pagination,'.category') }}
+			{{ pagination_widget(pagination,'.tag',name=name) }}
 			{% endif %}
 			</div>
 		{% endif %}

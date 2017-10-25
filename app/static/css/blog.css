@@ -73,19 +73,22 @@ span.timeAuthor small {
 }
 .listBoxCenter{
 	margin: 15px auto;
-	/*width: 90%;*/
-	width: 750px;
+	width: 100%;
+	/*width: 750px;*/
 	/*overflow: hidden;*/
 	line-height: 25px;
 }
 .post-body {
 	font-size: 16px;
-	word-wrap: break-word;
-	word-break: normal;
-	padding-top: 16px;
+	/*word-wrap: break-word;
+	word-break: normal;*/
+	overflow-wrap: break-word;
+	white-space: normal;
+	/*padding-top: 16px;*/
+	width: 96%;
 }
 .listBoxBottom {
-	width: 718px;
+	width: 100%;
 	height: 45px;
 	line-height: 45px;
 	border-top: 1px dashed #CCC;
@@ -96,10 +99,12 @@ span.timeAuthor small {
 .readMore {
 	display: inline-block;
 	margin-top: 20px;
+	margin-left: 15px;
 }
 .readMore a{
 	color: #D02F53;
 	font-weight: bold;
+	font-size: 13px;
 	overflow: hidden;
 }
 .readMore a:hover {
@@ -131,11 +136,29 @@ span.timeAuthor small {
 	float: right;
 	display: inline-block;
 }
+.bottomTag li a {
+	color: #669900;
+	text-decoration: none;
+}
+.bottomTag li a:hover {
+	color: #c21111;
+	text-decoration: none;
+	border-bottom: 1px solid #c21111;
+}
 .bottomCategory a{
 	color: #669900;
 	text-decoration: none;
 }
 .bottomCategory a:hover {
+	color: #c21111;
+	text-decoration: none;
+	border-bottom: 1px solid #c21111;
+}
+.bootomTag a {
+	color: #669900;
+	text-decoration: none;
+}
+.bootomTag a:hover {
 	color: #c21111;
 	text-decoration: none;
 	border-bottom: 1px solid #c21111;

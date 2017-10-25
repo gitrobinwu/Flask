@@ -12,7 +12,7 @@
 }
 
 /*评论区域*/
-#comments {
+#postcomment {
 	padding-top: 20px;
 	padding-bottom: 20px;
 	background: #fff;
@@ -48,16 +48,16 @@ li.comment {
 	width: 98%;
 	margin: 0px auto;
 	background: #fff;
-	border-bottom: 1px dashed #ccc;
+	border: 1px solid #d2cece;
 	overflow: hidden;
 	clear: both;
 	padding-left: 15px;
 	margin-bottom: 20px;
 	padding-bottom: 15px;
+	padding-top: 10px;
 }
 
 .comment-top {
-	width: 300px;
 	margin-bottom: 20px;
 }
 
@@ -102,5 +102,41 @@ li.comment {
 }
 
 
+/*支持，反对*/
+.goodbadfb {
+	dispaly: inline-block;
+	float: right;
+	font-size: 12px;
+	line-height: 42px;
+	margin-right: 20px;
+	color: #ccc;
+}
+.goodbadfb span a {
+	color: #3354AA;
+	text-decoration: none;
+}
+
+/*回复*/
+.quote_fieldset {
+	padding: .35em .625em .75em;
+	margin: 0 2px;
+	border: 1px dashed silver;
+}
+.quote_legend {
+	font-size: 15px;
+	color: #c91515;
+	font-weight: bold;
+	width: 45px;
+	display: block;
+	padding-left: 10px;
+	line-height: inherit;
+	border: 0px;
+}
+.comment-replay a {
+	font-size: 12px;
+	color: #3354AA;
+	text-decoration: none;
+	margin-right: 10px;
+}
 
 
