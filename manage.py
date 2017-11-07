@@ -5,6 +5,7 @@ from app import create_app, db
 from app.models import User, Role,Post,Permission,Category,Tag,PostTag,Comment
 from flask_script import Manager, Shell,Server
 from flask_migrate import Migrate, MigrateCommand
+import sys
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -75,6 +76,8 @@ def adduser():
 	print "<user %s add in database>" % username 
 
 if __name__ == '__main__':
-    manager.run()
+	reload(sys)
+	sys.setdefaultencoding('utf-8')
+	manager.run()
 
 

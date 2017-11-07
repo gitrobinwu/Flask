@@ -48,18 +48,19 @@ $(document).ready(function(){
 		//设置我的工具栏
 		toolbar: 'mytoolbar',
 		toolbar_mytoolbar: [
-		['Source','Preview','-'],
-		['Paste','PasteText','PasteFromWord','-'],
-		['Undo','Redo','-'],
-		['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-		['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+		['Source','Preview','Print','-','Save','NewPage'],
+		['Cut','Copy','Paste','PasteText','PasteFromWord','-','SelectAll', 'RemoveFormat'],
+		['Undo','Redo','-','Find','Replace'],
 		'/',
+		['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','-','CreateDiv','ShowBlocks'],
 		['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 		['Link','Unlink','Anchor'],
-		['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak','Iframe'],
+		['Image','Flash','Table','-','Smiley','SpecialChar','-','HorizontalRule','PageBreak'],
+		['Maximize','Iframe'],
 		'/',
 		['Styles','Format','Font','FontSize'],
-		['TextColor','BGColor']
+		['TextColor','BGColor'],
+		['Bold','Italic','Underline','Strike','-','Subscript','Superscript']
 		],
 		//是否强制复制来的内容去除格式 plugins/pastetext/plugin.js
 		forcePasteAsPlainText: false,

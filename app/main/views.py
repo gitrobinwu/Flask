@@ -78,13 +78,6 @@ def write_post():
 	# 检查用户是否有写博客权限
 	if current_user.can(Permission.WRITE_ARTICLES) and \
 		request.method=="POST":
-		print '-'*60
-		print 'title = ',request.values.get('title')
-		print 'summary = ',request.values.get('summary')
-		print 'category = ',request.values.get('category')
-		print 'tag = ',request.values.getlist('tag')
-		print 'ckhtml = ',request.values.get('ckhtml')
-		print '-'*60
 		# 摘要不是必须的；如果用户没有输入摘要，那么就截取正文的前200个字符给摘要字段
 		if form.summary.data:
 			fragment = form.summary.data 
@@ -356,8 +349,7 @@ def search_results(keyword):
 	if username:
 		# 如果查询字符串中用户名非空，返回用户个人站点
 		# 在用户发表过的文章列表中查询指定关键字的文章列表
-		user = User.query.filter_by(username=username).first_or_404()
-		pagination = user.posts.\
+		pagination = Post.query.filter_by(author=User.query.filter_by(username=username).first()).\
 					 whoosh_search(keyword).\
 					 order_by(Post.create_time.desc()).paginate(
 							page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
@@ -406,7 +398,6 @@ def search_results(keyword):
 @login_required
 def new_category():
 	if request.method=="POST":
-		print 'category_name = ',request.values.get('category_name')
 		# 新建分类
 		category = Category(name=request.values.get('category_name'),
 				author=current_user._get_current_object())
@@ -420,7 +411,6 @@ def new_category():
 @login_required
 def new_tag():
 	if request.method=="POST":
-		print 'tag_name = ',request.values.get('tag_name')
 		# 新建标签
 		tag = Tag(name=request.values.get('tag_name'),
 				author=current_user._get_current_object())
@@ -432,17 +422,14 @@ def new_tag():
 # 分类路由	
 @main.route('/category/<name>')
 def category(name):
-	print "category =============== ",name;
 	page = request.args.get('page',1,type=int) 
 
 	username = request.args.get('username',None)
 	if username:
-		print "username 1111111111 == ",username
 		# 返回用户下指定名称的分类
 		category = Category.query.\
 				   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
 				   filter_by(name=name).first()
-		print category,category.name,category.author.username
 		# 获取该分类下的文章列表
 		pagination = category.posts.\
 				   filter_by(author=User.query.filter_by(username=username).first_or_404()).\
